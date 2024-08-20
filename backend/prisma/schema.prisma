@@ -15,14 +15,16 @@ datasource db {
 
 model User {
   id        String     @id @default(uuid())
-  phone     String
+  name      String
+  phone     String     @unique
   password  String
   schedules Schedule[]
 }
 
 model Barber {
   id        String     @id @default(uuid())
-  phone     String
+  name      String
+  phone     String     @unique
   password  String
   services  Services[]
   schedules Schedule[]
