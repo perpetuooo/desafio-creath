@@ -1,5 +1,6 @@
 import Fastify, { FastifyReply, FastifyRequest } from "fastify"
 import { serializerCompiler, validatorCompiler } from "fastify-type-provider-zod";
+import fjwt from '@fastify/jwt'
 import cors from '@fastify/cors'
 import barberRoutes from "./modules/barber/barber.routes";
 
@@ -7,6 +8,14 @@ const app = Fastify({ logger: true })
 
 app.register(cors, {
     origin: '*'
+})
+app.register(fjwt, {
+    secret: process.env.FJWT_SECRET || "JWTSECRET",
+  })
+
+app.addHook('preHandler', (req, rep, done) => {
+    req.jwt = app.jwt
+    return done
 })
 
 async function main() {
