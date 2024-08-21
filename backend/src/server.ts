@@ -1,6 +1,7 @@
 import Fastify, { FastifyReply, FastifyRequest } from "fastify"
 import { serializerCompiler, validatorCompiler } from "fastify-type-provider-zod";
 import cors from '@fastify/cors'
+import barberRoutes from "./modules/barber/barber.routes";
 
 const app = Fastify({ logger: true })
 
@@ -11,6 +12,8 @@ app.register(cors, {
 async function main() {
     app.setValidatorCompiler(validatorCompiler)
     app.setSerializerCompiler(serializerCompiler)
+
+    app.register(barberRoutes, { prefix: 'api/barber' })
     
     app.get('/', (req: FastifyRequest, rep: FastifyReply) => {
         rep.send({ message: "Barba, Cabelo e Bigode." })
@@ -22,7 +25,7 @@ async function main() {
     await app.listen({ 
         port: port,
         host: host 
-    }).then(()=>{
+    }).then(() => {
         console.log('Server running at port ' + port)
     }).catch(err => {
         console.error(err)
