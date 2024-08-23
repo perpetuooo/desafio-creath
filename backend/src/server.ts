@@ -28,7 +28,7 @@ async function main() {
         rep.send({ message: "Barba, Cabelo e Bigode." })
     })
     
-    const port = process.env.PORT ? parseInt(process.env.PORT) : 8080
+    const port = process.env.PORT ? parseInt(process.env.PORT) : 8081
     const host = process.env.HOST || '0.0.0.0'
     
     await app.listen({ 
