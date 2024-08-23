@@ -26,23 +26,16 @@ model Barber {
   name      String
   phone     String     @unique
   password  String
-  services  Services[]
   schedules Schedule[]
 }
 
-model Services {
-  id       Int    @id @default(autoincrement())
-  name     String
-  price    Float
-  barberId String
-  barber   Barber @relation(fields: [barberId], references: [id])
-}
-
 model Schedule {
-  id       Int      @id @default(autoincrement())
-  dateTime DateTime
-  userId   String
-  barberId String
-  barber   Barber   @relation(fields: [barberId], references: [id])
-  user     User     @relation(fields: [userId], references: [id])
+  id        Int      @id @default(autoincrement())
+  dateTime  DateTime
+  userId    String
+  barberId  String
+  serviceId Int
+  service   String
+  barber    Barber   @relation(fields: [barberId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
 }

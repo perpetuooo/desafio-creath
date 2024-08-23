@@ -1,6 +1,6 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import prisma from "../../utils/prisma";
-import { AddServiceInput } from "./barber.schemas";
+import { AddServiceInput, UpdateScheduleAdminInput, UpdateServiceInput, UpdateUserAdminInput } from "./barber.schemas";
 
 export async function getUsers(req: FastifyRequest, rep: FastifyReply) {
     try {
@@ -18,7 +18,6 @@ export async function getUsers(req: FastifyRequest, rep: FastifyReply) {
                     name: {
                         contains: name.toLowerCase(),
                     }
-    
                 }
             })
     
@@ -136,23 +135,101 @@ export async function addService(
     }
 }
 
-export async function updateService(req: FastifyRequest, rep:FastifyReply) {
+export async function updateService(
+    req: FastifyRequest<{ Body: UpdateServiceInput }>,
+    rep:FastifyReply) {
 
 }
 
 export async function deleteService (req: FastifyRequest, rep: FastifyReply) {
+    try {
+
+        const { id } = req.params as { id: number }
+
+        const service = await prisma.services.delete({
+            where: { id }
+        })
+
+        if (service) {
+            return rep.code(200).send({ message: "Serviço deletado com sucesso!"})
+        } else {
+            return rep.code(404).send({ message: "Serviço não encontrado..."})
+        }
+
+    } catch(err) {
+        console.error(err)
+        return rep.code(500).send(err)
+    }
+}
+
+export async function updateUserAsAdmin (
+    req: FastifyRequest<{ Body: UpdateUserAdminInput }>, 
+    rep: FastifyReply) {
 
 }
 
-export async function updateUserAsAdmin(req: FastifyRequest, rep: FastifyReply) {
+export async function deleteUserAsAdmin (req: FastifyRequest, rep: FastifyReply) {
+    try {
 
+        const { phone } = req.params as { phone: string }
+
+        const service = await prisma.user.delete({
+            where: { phone }
+        })
+
+        if (service) {
+            return rep.code(200).send({ message: "Usuário deletado com sucesso!"})
+        } else {
+            return rep.code(404).send({ message: "Usuário não encontrado..."})
+        }
+
+    } catch(err) {
+        console.error(err)
+        return rep.code(500).send(err)
+    }
 }
 
+export async function updateScheduleAsAdmin (
+    req: FastifyRequest<{ Body: UpdateScheduleAdminInput }>, 
+    rep: FastifyReply) {
+    try {
+        const { id, ...data } = req.body as any
 
-export async function updateScheduleAsAdmin(req: FastifyRequest, rep: FastifyReply) {
-    
+        const schedule = await prisma.schedule.update({
+            where: { id },
+            data: { ...data }
+        })
+
+        if (schedule) {
+            rep.code(200)
+        } else {
+
+        }
+
+    } catch(err) {
+        console.error(err)
+        rep.code(500).send(err)
+    }
 }
 
-export async function deleteScheduleAsAdmin(req: FastifyRequest, rep: FastifyReply) {
+export async function deleteScheduleAsAdmin (req: FastifyRequest, rep: FastifyReply) {
+    try {
+
+        const { id } = req.params as { id: number }
+
+        const service = await prisma.schedule.delete({
+            where: { id }
+        })
+
+        if (service) {
+            return rep.code(200).send({ message: "Agendamento deletado com sucesso!"})
+        } else {
+            return rep.code(404).send({ message: "Agendamento não existe..."})
+        }
+
+    } catch(err) {
+        console.error(err)
+        return rep.code(500).send(err)
+    }
 
 }

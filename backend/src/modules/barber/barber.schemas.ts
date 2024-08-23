@@ -11,4 +11,26 @@ export const addServiceSchema = z.object({
     }).nonnegative({ message: "O preço deve ser positivo." }),
 })
 
+export const updateServiceSchema = z.object({
+    id: z.string(),
+    name: z.string().optional(),
+    price: z.number().optional(),
+    barberId: z.string().optional(),
+}).optional()
+
+export const updateUserAdminSchema = z.object({
+    name: z.string().optional(),
+    phone: z.string().optional(),
+}).optional()
+
+export const updateScheduleAdminSchema = z.object({
+    dateTime: z.date().optional(),
+    userId: z.string().optional(),
+    barberId: z.string().optional(),
+    serviceId: z.string().optional(),
+}).optional()
+
 export type AddServiceInput = z.infer<typeof addServiceSchema>
+export type UpdateServiceInput = z.infer<typeof updateServiceSchema>
+export type UpdateUserAdminInput = z.infer<typeof updateUserAdminSchema>
+export type UpdateScheduleAdminInput = z.infer<typeof updateScheduleAdminSchema>
