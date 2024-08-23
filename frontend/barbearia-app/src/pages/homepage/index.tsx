@@ -7,8 +7,8 @@ export function HomePage() {
     const navigate = useNavigate(); 
 
     return (
-        <div className="flex flex-col min-h-screen pb-16">
-            <div className="flex flex-col flex-grow items-center justify-evenly">
+        <div className="flex flex-col min-h-screen pb-16 md:pb-0">
+            <div className="flex flex-col flex-grow items-center justify-center space-y-12">
                 <div className="flex justify-center items-center">
                     <img src={logoWhite} alt="Logo" title="Logomarca"/>
                 </div>
