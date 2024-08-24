@@ -12,16 +12,26 @@ export function ResumoEEscolhaData() {
     // Função para gerar datas sugeridas
     const generateSuggestedDates = () => {
         const today = new Date();
-        return Array.from({ length: 7 }, (_, index) => addDays(today, index)).map(date => ({
+        const dates = [];
+        
+        // Gerar 8 dias para compensar o domingo
+        for (let i = 0; i < 8; i++) {
+            const date = addDays(today, i);
+            // Excluir domingos
+            if (format(date, 'EEEE', { locale: ptBR }) !== 'domingo') {
+                dates.push(date);
+            }
+        }
+    
+        return dates.map(date => ({
             dayOfWeek: format(date, 'EEEE', { locale: ptBR }),
             day: format(date, 'dd'),
             monthAndYear: format(date, 'MMMM yyyy', { locale: ptBR }),
-            times: Array.from({ length: 8 }, (_, index) => ({
-                time: format(addDays(date, 0).setHours(10 + index), 'HH:mm')
+            times: Array.from({ length: format(date, 'EEEE', { locale: ptBR }) === 'sábado' ? 6 : 13 }, (_, index) => ({
+                time: format(addDays(date, 0).setHours(9 + index, 0, 0, 0), 'HH:mm')
             }))
         }));
     };
-
     const suggestedDates = generateSuggestedDates();
 
     return (
@@ -82,7 +92,7 @@ export function ResumoEEscolhaData() {
                                     {date.times.map((time, index) => (
                                         <button key={index} className="bg-customGray-100 px-4 py-2 rounded-md flex items-center gap-2 md:hover:translate-y-[-4px] md:hover:font-bold md:hover:bg-customGray-400 ease-in-out text-customBlack md:hover:text-customGray-100" 
                                         title='Clique para selecionar o horário do Agendamento'
-                                        onClick={() => navigate('/')}>
+                                        onClick={() => navigate('/pedido')}>
                                             <Clock className='size-3 md:size-5' />
                                             <span >{time.time}</span>
                                         </button>

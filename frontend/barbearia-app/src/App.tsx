@@ -4,9 +4,11 @@ import {
 } from "react-router-dom";
 
 import { HomePage } from "./pages/homepage";
-import { Agendamento } from "./pages/agendar";
+import { Agendar } from "./pages/agendar";
 import { SelecionarBarbeiro } from "./pages/agendar/steps/selecionar-barbeiros";
 import { ResumoEEscolhaData } from "./pages/agendar/steps/resumo-e-escolha-data";
+import { Pedido } from "./pages/agendar/steps/pedido";
+import { Agendamento } from "./pages/agendamento";
 
 const router = createBrowserRouter([
   {
@@ -15,7 +17,7 @@ const router = createBrowserRouter([
   },
   {
     path: "/agendar",
-    element: <Agendamento/> ,
+    element: <Agendar/> ,
   },
   {
     path: "/selecionarBarbeiro",
@@ -25,6 +27,15 @@ const router = createBrowserRouter([
     path: "/resumo",
     element: <ResumoEEscolhaData/> ,
   },
+  {
+    path: "/pedido",
+    element: <Pedido/> ,
+  },
+  {
+    path: "/agendamentos",
+    element: <Agendamento/> ,
+  },
+  
   
 
 ]);

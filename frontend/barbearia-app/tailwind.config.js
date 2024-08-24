@@ -12,7 +12,9 @@ export default {
            300: '#949291',
            400: '#716D6C'
         },
-        customBlack: '#121212'
+        customBlack: '#121212',
+        customYewllow: '#FAC325',
+
       },
       boxShadow:{
         homePrimaryButton: '0px 4px 4px 0px #00000040',

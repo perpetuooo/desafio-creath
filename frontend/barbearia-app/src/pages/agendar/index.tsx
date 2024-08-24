@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ChevronRight, Search, ArrowLeft } from 'lucide-react';
 import { Navbar } from '../../navbar/navbar';
 
-export function Agendamento() {
+export function Agendar() {
     const navigate = useNavigate();
     const [searchQuery, setSearchQuery] = useState('');
 
