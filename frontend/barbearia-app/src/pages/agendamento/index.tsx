@@ -2,24 +2,46 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { Navbar } from '../../navbar/navbar';
-import { CancelarAgendamentoModal } from './cancelarAgendamentoModal'; // Certifique-se de criar esse modal
-
+import { CancelarAgendamentoModal } from './cancelarAgendamentoModal';
+import { ConfirmarCancelarAgendamentoModal } from './confirmar-cancelarAgendamentoModal';
+import { ReagendarModal } from './reagendarModal';
+//Esse deu trabalho(e ainda vai dar)
 export function Agendamento() {
     const navigate = useNavigate();
     const [isLoggedIn] = useState(true); // Simulação de usuário logado
-    const [isModalOpen, setIsModalOpen] = useState(false); // Estado para controlar o modal
+    const [isModalAgendamentoOpen, setIsModalAgendamentoOpen] = useState(false); // Estado para controlar o modal
+    const [isConfirmarCancelarModalOpen, setIsConfirmarCancelarModalOpen] = useState(false); // Estado do modal Confirmar
+    const [isReagendarModalOpen, setIsReagendarModalOpen] = useState(false); // Estado do modal Reagendar
 
     if (!isLoggedIn) {
-        navigate('/cadastro'); // Redireciona para a página de cadastro se não estiver logado
+        navigate('/cadastro'); 
         return null;
     }
 
-    const handleOpenModal = () => {
-        setIsModalOpen(true); // Abre o modal
+    const openModalAgendamento = () => {
+        setIsModalAgendamentoOpen(true); // Abre o modal CancelarAgendamento
     };
 
-    const handleCloseModal = () => {
-        setIsModalOpen(false); // Fecha o modal
+    const closeModalAgendamento = () => {
+        setIsModalAgendamentoOpen(false); // Fecha o modal CancelarAgendamento
+    };
+
+    const openConfirmarCancelarModal = () => {
+        setIsConfirmarCancelarModalOpen(true); // Abre o modal ConfirmarCancelarAgendamento
+    };
+
+    const closeConfirmarCancelarModal = () => {
+        setIsConfirmarCancelarModalOpen(false); // Fecha o modal ConfirmarCancelarAgendamento
+    };
+
+    const openReagendarModal = () => {
+        setIsReagendarModalOpen(true); // Abre o modal ReagendarModal
+    };
+
+    const closeAllModalsAndOpenReagendar = () => {
+        closeModalAgendamento();
+        closeConfirmarCancelarModal();
+        openReagendarModal(); // Fecha todos os modais e abre o ReagendarModal
     };
 
     return (
@@ -29,14 +51,14 @@ export function Agendamento() {
                     className="text-zinc-50 cursor-pointer size-6 md:hover:text-customGray-100 md:hover:size-7"
                     onClick={() => navigate('/')} 
                 />
-                <span className="text-zinc-50 md:text-lg">Minhas Reservas</span>
+                <span className="text-zinc-50 md:text-lg">Meus Agendamentos</span>
             </div>
             <div className="flex flex-col gap-8 px-8 mt-8 items-center">
                 <span className="font-bold mr-auto md:mr-0">agosto, 2024</span>
                 
                 <button
                     className="flex bg-customGray-100 border-l-4 border-blue-500 w-80 md:w-96 h-28 rounded-xl px-7 py-6 gap-3 shadow-navbar transform hover:translate-y-[-5px] ease-in-out duration-300"
-                    onClick={handleOpenModal} // Abre o modal ao clicar no botão
+                    onClick={openModalAgendamento} // Abre o modal ao clicar no botão
                 >
                     <div className="flex flex-col justify-start text-center gap-4 font-bold">
                         <span>ago.</span>
@@ -54,10 +76,22 @@ export function Agendamento() {
 
             <Navbar />
 
-            {isModalOpen && (
-                <CancelarAgendamentoModal               
-                    closeModal={handleCloseModal} // Passa a função para fechar o modal
+            {isModalAgendamentoOpen && (
+                <CancelarAgendamentoModal
+                    closeModalAgendamento={closeModalAgendamento}
+                    openConfirmarCancelarModal={openConfirmarCancelarModal}
                 />
+            )}
+
+            {isConfirmarCancelarModalOpen && (
+                <ConfirmarCancelarAgendamentoModal
+                    closeModalAgendamento={closeConfirmarCancelarModal}
+                    confirmarAgendamento={closeAllModalsAndOpenReagendar}
+                />
+            )}
+
+            {isReagendarModalOpen && (
+                <ReagendarModal closeModal={() => setIsReagendarModalOpen(false)} />
             )}
         </div>
     );

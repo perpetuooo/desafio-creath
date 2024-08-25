@@ -18,7 +18,7 @@ export function Navbar() {
             <button onClick={() => navigate('/agendamentos')} className="focus:outline-none" title="Ir para a Página Meus Agendamentos"> 
                 <NavbarItem icon={CalendarRange} text="Agendados" />
             </button>
-            <button onClick={() => navigate('/agendamentos')} className="focus:outline-none" title="Ir para a Página de Configurações">
+            <button onClick={() => navigate('/mais')} className="focus:outline-none" title="Ir para a Página de Configurações">
                 <NavbarItem icon={MoreHorizontal} text="Mais"  />
             </button>     
         </div>

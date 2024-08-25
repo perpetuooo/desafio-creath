@@ -3,15 +3,15 @@ import { useState } from 'react';
 import { ReagendarModal } from './reagendarModal';
 
 interface ConfirmarCancelarAgendamentoProps {
-    closeModal: () => void;
-    confirmarCancelamento: () => void;
+    closeModalAgendamento: () => void;
+    confirmarAgendamento: () => void;
 }
 
-export function ConfirmarCancelarAgendamentoModal({ closeModal, confirmarCancelamento }: ConfirmarCancelarAgendamentoProps) {
+export function ConfirmarCancelarAgendamentoModal({ closeModalAgendamento, confirmarAgendamento }: ConfirmarCancelarAgendamentoProps) {
     const [isReagendarModalOpen, setIsReagendarModalOpen] = useState(false);
 
-    const handleConfirmarClick = () => {
-        confirmarCancelamento();
+    const handleConfirmarCancelarAgendamento = () => {
+        confirmarAgendamento();
         setIsReagendarModalOpen(true);
     };
 
@@ -21,13 +21,13 @@ export function ConfirmarCancelarAgendamentoModal({ closeModal, confirmarCancela
 
     return (
         <>
-            <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+            <div className="fixed inset-0 flex items-center justify-center defaultFontStyles bg-black bg-opacity-50">
                 <div className="w-72 bg-white rounded-xl shadow-navbar">
                     <div className="flex justify-between items-center bg-customGray-400 rounded-t-lg py-3 px-3">
                         <span className="text-base md:font-bold text-customGray-100">Cancelar</span>
                         <X 
                             className="text-customGray-300 cursor-pointer hover:text-customGray-100" 
-                            onClick={closeModal} 
+                            onClick={closeModalAgendamento} 
                         />
                     </div>
 
@@ -40,15 +40,15 @@ export function ConfirmarCancelarAgendamentoModal({ closeModal, confirmarCancela
                         <div className="flex justify-end mt-6 gap-4">
                             <button
                                 className="transform hover:translate-y-[-5px] ease-in-out duration-300 px-4 py-2 rounded-md text-red-600"
-                                onClick={closeModal}
+                                onClick={closeModalAgendamento}
                             >
                                 Cancelar
                             </button>
                             <button
                                 className="transform hover:translate-y-[-5px] ease-in-out duration-300 px-4 py-2 rounded-md text-green-500 w-24"
-                                onClick={handleConfirmarClick}
+                                onClick={handleConfirmarCancelarAgendamento}
                             >
-                                Sim
+                            Sim
                             </button>
                         </div>
                     </div>

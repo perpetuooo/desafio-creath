@@ -13,7 +13,7 @@ export default {
            400: '#716D6C'
         },
         customBlack: '#121212',
-        customYewllow: '#FAC325',
+        customYellow: '#FAC325',
 
       },
       boxShadow:{

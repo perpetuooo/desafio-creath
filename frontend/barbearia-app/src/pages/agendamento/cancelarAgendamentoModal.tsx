@@ -1,35 +1,20 @@
 import { X, CalendarRange, AlarmClock, ConciergeBellIcon, UserIcon, Bookmark } from 'lucide-react';
-import { useState } from 'react';
-import { ConfirmarCancelarAgendamentoModal } from './confirmar-cancelarAgendamentoModal';
 
 interface CancelarAgendamentoModalProps {
-    closeModal: () => void;
+    closeModalAgendamento: () => void;
+    openConfirmarCancelarModal: () => void;
 }
 
-export function CancelarAgendamentoModal(props: CancelarAgendamentoModalProps) {
-    const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
-
-    const handleCancelarClick = () => {
-        setIsConfirmModalOpen(true);
-    };
-
-    const closeConfirmModal = () => {
-        setIsConfirmModalOpen(false);
-    };
-
-    const confirmarCancelamento = () => {
-        setIsConfirmModalOpen(false);
-        props.closeModal();
-    };
+export function CancelarAgendamentoModal({ closeModalAgendamento, openConfirmarCancelarModal }: CancelarAgendamentoModalProps) {
 
     return (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+        <div className="fixed inset-0 defaultFontStyles flex items-center justify-center bg-black bg-opacity-50">
             <div className="w-72 bg-white rounded-xl shadow-navbar">
                 <div className="w-full bg-customGray-400 rounded-t-lg flex justify-between items-center mb-4 py-3 px-3">
                     <span className="text-base md:font-bold text-customGray-100">Sua Reserva</span>
                     <X 
                         className="text-customGray-300 cursor-pointer hover:text-customGray-100" 
-                        onClick={props.closeModal} 
+                        onClick={closeModalAgendamento} 
                     />
                 </div>
 
@@ -59,24 +44,18 @@ export function CancelarAgendamentoModal(props: CancelarAgendamentoModalProps) {
                     <div className="flex justify-end mt-4">
                         <button
                             className="transform hover:translate-y-[-5px] ease-in-out duration-300  px-4 py-2 rounded-md text-red-600"
-                            onClick={handleCancelarClick}>
+                            onClick={openConfirmarCancelarModal}>
                             Cancelar
                         </button>
                         <button
                             className="transform hover:translate-y-[-5px] ease-in-out duration-300  px-4 py-2 rounded-md text-green-500 w-24"
-                            onClick={props.closeModal}
+                            onClick={closeModalAgendamento}
                         >
                             Confirmar
                         </button>
                     </div>
                 </div>
             </div>
-            {isConfirmModalOpen && (
-                <ConfirmarCancelarAgendamentoModal
-                    closeModal={closeConfirmModal}
-                    confirmarCancelamento={confirmarCancelamento}
-                />
-            )}
         </div>
     );
 }

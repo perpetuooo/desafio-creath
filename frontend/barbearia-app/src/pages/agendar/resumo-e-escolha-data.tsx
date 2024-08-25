@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, ArrowLeft, X, ConciergeBell, User, Clock, ArrowLeftRight } from 'lucide-react';
-import { Navbar } from '../../../navbar/navbar';
+import { Navbar } from '../../navbar/navbar';
 import { addDays, format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 

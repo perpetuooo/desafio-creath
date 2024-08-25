@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { ChevronRight, ArrowLeft, User } from 'lucide-react'; 
-import { Navbar } from '../../../navbar/navbar';
+import { Navbar } from '../../navbar/navbar';
 
 export function SelecionarBarbeiro() {
     const navigate = useNavigate();

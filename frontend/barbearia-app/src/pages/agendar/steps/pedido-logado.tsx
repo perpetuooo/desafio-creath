@@ -52,7 +52,7 @@ export function PedidoLogado() {
                 <span className="text-blue-950 font-bold cursor-pointer">Adicionar observação</span>
             </div>
 
-            <button className="mt-6 text-customGray-100 bg-customGray-400 py-2 px-4 rounded-md mx-auto block transform md:hover:translate-y-[-5px] transition ease-in-out">
+            <button className="mt-6 text-customGray-100 bg-customGray-400 py-2 px-4 rounded-md mx-auto block transform md:hover:translate-y-[-5px] transition ease-in-out max-h-16 max-w-80">
                 CONCLUIR AGENDAMENTO
             </button>
         </div>

@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Trash2, CheckCircle, Lock, ArrowLeft } from 'lucide-react';
-import { Navbar } from '../../../navbar/navbar';
-import { PedidoConcluidoModal } from './pedido-concluido-modal'; 
+import { Plus, Trash2, CheckCircle, LockKeyholeIcon, ArrowLeft } from 'lucide-react';
+import { Navbar } from '../../navbar/navbar';
+import { PedidoConcluidoModal } from './steps/pedido-concluido-modal'; 
 
 export function Pedido() {
     const navigate = useNavigate();
@@ -70,7 +70,7 @@ export function Pedido() {
 
                     <div className="mt-auto w-full flex justify-center">
                         <button
-                            className="text-customGray-100 bg-customGray-400 px-4 py-2 rounded-md flex items-center justify-center transform hover:translate-y-[-5px] ease-in-out duration-300 w-full max-w-xs"
+                            className="text-zinc-50 bg-customGray-400 px-4 py-2 rounded-md flex items-center justify-center transform hover:translate-y-[-5px] ease-in-out duration-300 w-full h-14 md:w-80 shadow-navbar"
                             onClick={handleConcluirAgendamento} 
                         >
                             CONCLUIR AGENDAMENTO
@@ -104,9 +104,9 @@ export function Pedido() {
                     </button>
 
                     <button
-                        className=" mt-auto w-72 text-customGray-100 bg-customGray-400 px-2 py-4 rounded-md flex items-center justify-center transform hover:translate-y-[-5px] ease-in-out duration-300 gap-2"
+                        className=" mt-auto  text-customGray-100 bg-customGray-400 px-2 py-4 rounded-md flex items-center justify-center transform hover:translate-y-[-5px] ease-in-out duration-300 gap-2 w-full h-14 md:w-80 shadow-navbar"
                     >
-                        <Lock className=" size-5 text-customYellow" />
+                        <LockKeyholeIcon className=" size-5 text-customYellow" />
                         FAZER LOGIN
                     </button>
                 </div>

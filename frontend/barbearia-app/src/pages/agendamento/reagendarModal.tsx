@@ -1,10 +1,12 @@
 import { X, ConciergeBellIcon, UserIcon } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface ReagendarModalProps {
     closeModal: () => void;
 }
 
 export function ReagendarModal({ closeModal }: ReagendarModalProps) {
+    const navigate = useNavigate(); 
     return (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
             <div className="w-72 bg-white rounded-xl shadow-navbar">
@@ -15,13 +17,15 @@ export function ReagendarModal({ closeModal }: ReagendarModalProps) {
                         onClick={closeModal} 
                     />
                 </div>
-
-                <div className="flex flex-col py-10 px-5">
-                    <span className="text-center text-customGray-300 mt-4">
+                <div className="flex flex-col py-7 px-5">
+                    <h2 className="text-left text-customBlack mt-1 font-bold text-sm">
                         Deseja agendar para outro horário?
-                    </span>
+                    </h2>
                     
-                    <div className="flex flex-col gap-4 mt-6">
+                    <div className="flex flex-col gap-4 mt-2 ml-2">
+                        <h3 className="text-left text-customGray-400 mt-4 font-bold">
+                            Agendamento:
+                        </h3>
                         <div className="flex items-center gap-4">
                             <ConciergeBellIcon className="size-5 font-bold" />
                             <span className="text-customGray-300">Barba</span>
@@ -32,12 +36,18 @@ export function ReagendarModal({ closeModal }: ReagendarModalProps) {
                         </div>
                     </div>
 
-                    <div className="flex justify-end mt-6">
+                    <div className="flex justify-end mt-8">
                         <button
-                            className="transform hover:translate-y-[-5px] ease-in-out duration-300 px-4 py-2 rounded-md text-red-600"
+                            className="transform hover:translate-y-[-5px] ease-in-out duration-300 px-4 py-2 rounded-md text-customBlack"
                             onClick={closeModal}
                         >
-                            Não quero Agendar
+                            Não quero 
+                        </button>
+                        <button
+                             className="transform hover:translate-y-[-5px] ease-in-out duration-300 px-4 py-2 rounded-md text-green-500 w-24"
+                            onClick={()=>navigate('/agendar')}
+                        >
+                            Agendar
                         </button>
                     </div>
                 </div>
