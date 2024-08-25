@@ -1,72 +1,122 @@
-import { FastifyReply, FastifyRequest } from "fastify";
+import fastify, { FastifyReply, FastifyRequest } from "fastify";
 import prisma from "../../utils/prisma";
+import { CreateUserType, LoginUserType, UpdateUserType } from "./user.schemas";
 
-export async function createUser (request: FastifyRequest, reply: FastifyReply) {
-    const { name, email } = request.body as { name: string; email: string };
+export async function createUser (req: FastifyRequest<{Body: CreateUserType}>, rep: FastifyReply) {
+    const { name, phone, password } = req.body as { name: string; phone: string; password: string };
 
     try {
+
+      //Implementar lógica do hasheamento de senhas aqui.
+      // Ex: const hashedPassword = await hashPassword(password)
+
       const newUser = await prisma.user.create({
-        data: { name, email },
+        data: { 
+          name: name,
+          phone: phone,
+          password: password // <-- Depois, passar a hashedPassword nesse campo.
+        },
       });
-      return reply.code(201).send(newUser);
+      return rep.code(201).send(newUser);
     } catch (error) {
-      return reply.code(500).send({ error: "Error creating user" });
+      return rep.code(500).send({ error: "Error creating user" });
     }
   }
+
+export async function loginUser (req: FastifyRequest<{Body: LoginUserType}>, rep: FastifyReply) {
+  const { phone, password } = req.body as { phone: string; password: string }
+
+  try {
+
+    const user = await prisma.user.findUnique({ where: { phone } })
+
+    //Implementar lógica de comparação de senhas aqui.
+    //Ex: const correctPassword = await comparePassword(password, user.password)
+    //Abaixo, a lógica de login já está completa.
+
+    if (user && correctPassword) {
+      const payload = {
+        id: user.id,
+        phone: user.phone,
+        name: user.name,
+      }
+
+      const token = req.jwt.sign(payload)
+
+      rep.setCookie('acess_token', token, {
+        path: '/',
+        httpOnly: true,
+        secure: true,
+      })
+
+      return { acessToken: token }
     
-export async function getUsers (request: FastifyRequest, reply: FastifyReply) {
+    } else {
+      return rep.code(401).send({ error: "Email ou senha inválidos." })
+    }
+
+  } catch (error) {
+    return rep.code(500).send({ error: "Error loging user" })
+  }
+}
+
+export async function logoutUser (req: FastifyRequest, rep: FastifyReply) {
+  rep.clearCookie('acess_token')
+}
+    
+export async function getUsers (req: FastifyRequest, rep: FastifyReply) {
     try {
       const users = await prisma.user.findMany();
-      return reply.send(users);
+      return rep.send(users);
     } catch (error) {
-      return reply.code(500).send({ error: "Error fetching users" });
+      return rep.code(500).send({ error: "Error fetching users" });
     }
   }
 
-  export async function getUserById (request: FastifyRequest, reply: FastifyReply) {
-    const { id } = request.params as { id: string };
+  export async function getUserById (req: FastifyRequest, rep: FastifyReply) {
+    const { id } = req.params as { id: string };
 
     try {
       const user = await prisma.user.findUnique({
-        where: { id: parseInt(id) },
+        where: { id },
       });
 
       if (!user) {
-        return reply.code(404).send({ error: "User not found" });
+        return rep.code(404).send({ error: "User not found" });
       }
 
-      return reply.send(user);
+      return rep.send(user);
     } catch (error) {
-      return reply.code(500).send({ error: "Error fetching user" });
+      return rep.code(500).send({ error: "Error fetching user" });
     }
   }
 
-  export async function updateUserById (request: FastifyRequest, reply: FastifyReply) {
-    const { id } = request.params as { id: string };
-    const { name, email } = request.body as { name: string; email: string };
+  export async function updateUserById (req: FastifyRequest<{Body:UpdateUserType}>, rep: FastifyReply) {
+    const { id } = req.params as { id: string };
+    const { name, phone, password } = req.body as { name: string; phone: string; password: string };
 
     try {
       const updatedUser = await prisma.user.update({
-        where: { id: parseInt(id) },
-        data: { name, email },
+        where: { id },
+        data: { name, phone, password },
       });
 
-      return reply.send(updatedUser);
+      return rep.send({ message: "Usuário atualizado com sucesso!" });
     } catch (error) {
-      return reply.code(500).send({ error: "Error updating user" });
+      return rep.code(500).send({ error: "Error updating user" });
     }
   }
 
-  export async function deleteUserById (request: FastifyRequest, reply: FastifyReply) {
-    const { id } = request.params as { id: string };
+  export async function deleteUserById (req: FastifyRequest, rep: FastifyReply) {
+    const { id } = req.params as { id: string };
 
     try {
       await prisma.user.delete({
-        where: { id: parseInt(id) },
+        where: { id },
       });
 
-      return reply.code(204).send();
+      return rep.code(204).send();
     } catch (error) {
-      return reply.code(500).send({ error: "Error deleting user" });
+      return rep.code(500).send({ error: "Error deleting user" });
     }
   }

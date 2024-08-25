@@ -1,14 +1,29 @@
 import Fastify, { FastifyReply, FastifyRequest } from "fastify";
-import {
-  serializerCompiler,
-  validatorCompiler,
-} from "fastify-type-provider-zod";
+import { serializerCompiler, validatorCompiler, ZodTypeProvider } from "fastify-type-provider-zod";
 import fjwt from "@fastify/jwt";
 import cors from "@fastify/cors";
 import barberRoutes from "./modules/barber/barber.routes";
 import userRoutes from "./modules/user/user.routes";
+import prisma from "./utils/prisma";
+import cookies, { FastifyCookieOptions } from "@fastify/cookie";
 
-const app = Fastify({ logger: true });
+const app = Fastify({ logger: true }).withTypeProvider<ZodTypeProvider>();
+
+app.decorate('authenticator', async (req: FastifyRequest, rep: FastifyReply) => {
+  const token = req.cookies.acess_token
+
+  if (!token) {
+    return rep.status(401).send({ message: "Autenticação falhou" })
+  }
+
+  try {
+    req.user = req.jwt.verify(token)
+    
+  } catch(error) {
+    console.error(error)
+    return rep.status(401).send(error)
+  }
+})
 
 app.register(cors, {
   origin: "*",
@@ -16,6 +31,10 @@ app.register(cors, {
 app.register(fjwt, {
   secret: process.env.FJWT_SECRET || "JWTSECRET",
 });
+app.register(cookies, {
+  secret: process.env.COOKIES_SECRET || "COOKIESSECRET",
+} as FastifyCookieOptions)
+
 
 app.addHook("preHandler", (req, rep, done) => {
   req.jwt = app.jwt;
@@ -29,7 +48,7 @@ async function main() {
   app.register(barberRoutes, { prefix: "api/barber" });
   app.register(userRoutes, { prefix: "api/user" });
 
-  app.get("/", (req: FastifyRequest, rep: FastifyReply) => {
+  app.get('/', (req: FastifyRequest, rep: FastifyReply) => {
     rep.send({ message: "Barba, Cabelo e Bigode." });
   });
 
@@ -38,7 +57,7 @@ async function main() {
 
   await app
     .listen({
-      port: port,
+      port: port, 
       host: host,
     })
     .then(() => {
@@ -53,9 +72,11 @@ async function main() {
 main();
 
 process.on("SIGINT", async () => {
+  await prisma.$disconnect()
   process.exit();
 });
 
 process.on("SIGTERM", async () => {
+  await prisma.$disconnect
   process.exit();
 });
