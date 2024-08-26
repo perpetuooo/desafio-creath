@@ -54,8 +54,47 @@ export const UserSchema = z.object({
   updatedAt: z.string(),
 });
 
+export const CreateScheduleSchema = z.object({
+  // dateTime é baseada no padrão ISO 8601.
+  dateTime: z
+  .string({
+    required_error: "Escolha uma data.",
+    invalid_type_error: "Data inválida.",
+  }).datetime(),
+  userId: z
+  .string({
+    required_error: "Escolha um usuário.",
+    invalid_type_error: "ID do usuário inválido."
+  }).uuid().optional(),
+  barberId: z
+  .string({
+    required_error: "Escolha um barbeiro.",
+    invalid_type_error: "ID do barbeiro inválido."
+  }).uuid(),
+  service: z
+  .string({
+    required_error: "Escolha um serviço.",
+    invalid_type_error: "Serviço inválido."
+  })
+})
+
+export const UpdateScheduleSchema = z.object({
+  id: z.number(),
+  dateTime: z.string().datetime().optional(),
+  userId: z.string().uuid().optional(),
+  barberId: z.string().uuid().optional(),
+  service: z.string().optional(),
+})
+
+export const DeleteScheduleSchema = z.object({
+  id: z.number()
+})
+
 // Tipos derivados dos esquemas
 export type CreateUserType = z.infer<typeof CreateUserSchema>;
 export type LoginUserType = z.infer<typeof LoginUserSchema>;
 export type UpdateUserType = z.infer<typeof UpdateUserSchema>;
+export type CreateScheduleType = z.infer<typeof CreateScheduleSchema>;
+export type UpdateScheduleType = z.infer<typeof UpdateScheduleSchema>;
+export type DeleteScheduleType = z.infer<typeof DeleteScheduleSchema>;
 export type UserType = z.infer<typeof UserSchema>;

@@ -9,22 +9,6 @@ import cookies, { FastifyCookieOptions } from "@fastify/cookie";
 
 const app = Fastify({ logger: true }).withTypeProvider<ZodTypeProvider>();
 
-app.decorate('authenticator', async (req: FastifyRequest, rep: FastifyReply) => {
-  const token = req.cookies.acess_token
-
-  if (!token) {
-    return rep.status(401).send({ message: "Autenticação falhou" })
-  }
-
-  try {
-    req.user = req.jwt.verify(token)
-    
-  } catch(error) {
-    console.error(error)
-    return rep.status(401).send(error)
-  }
-})
-
 app.register(cors, {
   origin: "*",
 });
@@ -36,9 +20,31 @@ app.register(cookies, {
 } as FastifyCookieOptions)
 
 
+app.decorate('authenticator', async (req: FastifyRequest, rep: FastifyReply) => {
+  const token = req.cookies.acess_token
+
+  if (!token) {
+    return rep.status(401).send({ error: "Autenticação falhou" })
+  }
+
+  try {
+    req.user = req.jwt.verify(token)
+    
+  } catch(error) {
+    console.error(error)
+    return rep.status(401).send(error)
+  }
+})
+
+app.decorate('isBarber', async (req: FastifyRequest, rep: FastifyReply) => {
+  if (!req.baber) {
+    return rep.status(403).send({ error: "Acesso negado." })
+  }
+})
+
 app.addHook("preHandler", (req, rep, done) => {
   req.jwt = app.jwt;
-  return done;
+  return done();
 });
 
 async function main() {

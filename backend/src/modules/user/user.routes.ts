@@ -1,8 +1,17 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
-import { createUser, deleteUserById, getUserById, getUsers, loginUser, logoutUser, updateUserById } from "./user.controller";
-import { CreateUserSchema, LoginUserSchema, UpdateUserSchema } from "./user.schemas";
+import { createSchedule, createUser, deleteSchedule, deleteUser, getBarbers, getUsers, getUserSchedules, loginUser, logoutUser, updateSchedule, updateUser } from "./user.controller";
+import { CreateScheduleSchema, CreateUserSchema, DeleteScheduleSchema, LoginUserSchema, UpdateUserSchema } from "./user.schemas";
 
 export default async function userRoutes(fastify: FastifyInstance) {
+  
+  fastify.get("/:name", 
+    getUsers
+  );
+
+  fastify.get("/barbers:name",
+    getBarbers
+  )
+
   fastify.post("/register", 
     {
       schema: {
@@ -22,31 +31,60 @@ export default async function userRoutes(fastify: FastifyInstance) {
    )
 
    fastify.delete("/logout",
-    logoutUser
-   )
-
-  fastify.get("/", 
     {
       preHandler: [fastify.authenticator],
     },
-    getUsers
-  );
-    
+    logoutUser
+   )
 
-  fastify.get("/:id",
-    getUserById
-   );
-
-  fastify.put("/:id",
+  fastify.put("/update",
     {
+      preHandler: [fastify.authenticator],
       schema: {
         body: UpdateUserSchema
       }
     },
-    updateUserById
+    updateUser
   );
 
-  fastify.delete("/:id",
-    deleteUserById 
+  fastify.delete("/delete",
+    {
+      preHandler: [fastify.authenticator]
+    },
+    deleteUser 
   );
+
+  fastify.post("/create",
+    {
+      preHandler: [fastify.authenticator],
+      schema: {
+        body: CreateScheduleSchema
+      }
+    },
+    createSchedule
+  )
+
+  fastify.get("/schedules",
+     {
+      preHandler: [fastify.authenticator],
+     },
+     getUserSchedules
+  )
+
+  fastify.put("/scheduleupdate",
+    {
+      preHandler: [fastify.authenticator],
+    },
+    updateSchedule
+  )
+
+  fastify.delete("/erase",
+    {
+      preHandler: [fastify.authenticator],
+      schema: {
+        body: DeleteScheduleSchema
+      }
+    },
+    deleteSchedule
+  )
 }
