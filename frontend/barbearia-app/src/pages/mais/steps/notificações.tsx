@@ -1,7 +1,7 @@
 import { ArrowLeft, BellIcon, ToggleRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
-import { Navbar } from '../../../navbar/navbar';
+import { Navbar } from '../../../components/navbar/navbar';
 
 export function Notificacoes() {
     const navigate = useNavigate();

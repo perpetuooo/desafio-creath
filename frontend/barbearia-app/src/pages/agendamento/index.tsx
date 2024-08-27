@@ -1,47 +1,49 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
-import { Navbar } from '../../navbar/navbar';
+import { Navbar } from '../../components/navbar/navbar';
 import { CancelarAgendamentoModal } from './cancelarAgendamentoModal';
 import { ConfirmarCancelarAgendamentoModal } from './confirmar-cancelarAgendamentoModal';
 import { ReagendarModal } from './reagendarModal';
-//Esse deu trabalho(e ainda vai dar)
+import { useAuth } from '../../context/authcontext'; 
+
 export function Agendamento() {
     const navigate = useNavigate();
-    const [isLoggedIn] = useState(true); // Simulação de usuário logado
-    const [isModalAgendamentoOpen, setIsModalAgendamentoOpen] = useState(false); // Estado para controlar o modal
-    const [isConfirmarCancelarModalOpen, setIsConfirmarCancelarModalOpen] = useState(false); // Estado do modal Confirmar
-    const [isReagendarModalOpen, setIsReagendarModalOpen] = useState(false); // Estado do modal Reagendar
+    const { isLoggedIn } = useAuth(); 
+    const [isModalAgendamentoOpen, setIsModalAgendamentoOpen] = useState(false); 
+    const [isConfirmarCancelarModalOpen, setIsConfirmarCancelarModalOpen] = useState(false);
+    const [isReagendarModalOpen, setIsReagendarModalOpen] = useState(false);
 
-    if (!isLoggedIn) {
-        navigate('/cadastro'); 
-        return null;
-    }
+    useEffect(() => {
+        if (!isLoggedIn) {
+            navigate('/cadastro');
+        }
+    }, [isLoggedIn, navigate]); 
 
     const openModalAgendamento = () => {
-        setIsModalAgendamentoOpen(true); // Abre o modal CancelarAgendamento
+        setIsModalAgendamentoOpen(true);
     };
 
     const closeModalAgendamento = () => {
-        setIsModalAgendamentoOpen(false); // Fecha o modal CancelarAgendamento
+        setIsModalAgendamentoOpen(false);
     };
 
     const openConfirmarCancelarModal = () => {
-        setIsConfirmarCancelarModalOpen(true); // Abre o modal ConfirmarCancelarAgendamento
+        setIsConfirmarCancelarModalOpen(true);
     };
 
     const closeConfirmarCancelarModal = () => {
-        setIsConfirmarCancelarModalOpen(false); // Fecha o modal ConfirmarCancelarAgendamento
+        setIsConfirmarCancelarModalOpen(false);
     };
 
     const openReagendarModal = () => {
-        setIsReagendarModalOpen(true); // Abre o modal ReagendarModal
+        setIsReagendarModalOpen(true);
     };
 
     const closeAllModalsAndOpenReagendar = () => {
         closeModalAgendamento();
         closeConfirmarCancelarModal();
-        openReagendarModal(); // Fecha todos os modais e abre o ReagendarModal
+        openReagendarModal();
     };
 
     return (
@@ -58,7 +60,7 @@ export function Agendamento() {
                 
                 <button
                     className="flex bg-customGray-100 border-l-4 border-blue-500 w-80 md:w-96 h-28 rounded-xl px-7 py-6 gap-3 shadow-navbar transform hover:translate-y-[-5px] ease-in-out duration-300"
-                    onClick={openModalAgendamento} // Abre o modal ao clicar no botão
+                    onClick={openModalAgendamento}
                 >
                     <div className="flex flex-col justify-start text-center gap-4 font-bold">
                         <span>ago.</span>

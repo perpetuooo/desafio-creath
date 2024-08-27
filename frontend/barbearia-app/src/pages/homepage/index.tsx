@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom"; 
 import logoWhite from '../../assets/whiteLogo.svg';
 import { Clock, CalendarRange } from 'lucide-react';
-import { Navbar } from '../../navbar/navbar';
+import { Navbar } from '../../components/navbar/navbar';
 
 export function HomePage() {
     const navigate = useNavigate(); 

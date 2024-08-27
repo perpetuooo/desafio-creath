@@ -1,38 +1,66 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, ArrowLeft, X, ConciergeBell, User, Clock, ArrowLeftRight } from 'lucide-react';
-import { Navbar } from '../../navbar/navbar';
-import { addDays, format } from 'date-fns';
+import { Navbar } from '../../../components/navbar/navbar';
+import { addDays, format, setHours, setMinutes } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { useAgendar } from '../../../context/agendarContext';
+import { useAgendarStepValidation } from '../../../hooks/agendar-step-validation';
 
 export function ResumoEEscolhaData() {
     const navigate = useNavigate();
     const [searchQuery, setSearchQuery] = useState('');
+    const { setSelectedDateTime, selectedService, selectedBarber, addAgendamento, agendamentos } = useAgendar();
+    const { validateStep } = useAgendarStepValidation('resumo');
 
-    // Função para gerar datas sugeridas
+    useEffect(() => {
+        console.log('Esse vem do Resumo', agendamentos);
+        validateStep();
+    }, [agendamentos, validateStep]);
+
     const generateSuggestedDates = () => {
         const today = new Date();
         const dates = [];
-        
-        // Gerar 8 dias para compensar o domingo
+
         for (let i = 0; i < 8; i++) {
             const date = addDays(today, i);
-            // Excluir domingos
+            const formattedDate = format(date, 'yyyy-MM-dd'); // Formato ISO
             if (format(date, 'EEEE', { locale: ptBR }) !== 'domingo') {
-                dates.push(date);
+                dates.push({
+                    dayOfWeek: format(date, 'EEEE', { locale: ptBR }),
+                    day: format(date, 'dd'),
+                    monthAndYear: format(date, 'MMMM yyyy', { locale: ptBR }),
+                    date: formattedDate, // Adiciona a data no formato ISO
+                    times: Array.from({ length: format(date, 'EEEE', { locale: ptBR }) === 'sábado' ? 6 : 13 }, (_, index) => ({
+                        time: format(setHours(setMinutes(new Date(), 0), 9 + index), 'HH:mm')
+                    }))
+                });
             }
         }
-    
-        return dates.map(date => ({
-            dayOfWeek: format(date, 'EEEE', { locale: ptBR }),
-            day: format(date, 'dd'),
-            monthAndYear: format(date, 'MMMM yyyy', { locale: ptBR }),
-            times: Array.from({ length: format(date, 'EEEE', { locale: ptBR }) === 'sábado' ? 6 : 13 }, (_, index) => ({
-                time: format(addDays(date, 0).setHours(9 + index, 0, 0, 0), 'HH:mm')
-            }))
-        }));
+
+        return dates;
     };
+
     const suggestedDates = generateSuggestedDates();
+
+    const handleSelectDateTime = (date: string, time: string) => {
+        const [year, month, day] = date.split('-').map(Number);
+        const selectedDate = new Date(year, month-1, day); 
+        if (isNaN(selectedDate.getTime())) {
+            console.error('Data inválida:', date);
+            return;
+        }  
+        const [hours, minutes] = time.split(':').map(Number);
+        const selectedDateTime = setHours(setMinutes(selectedDate, minutes), hours);
+        
+        setSelectedDateTime(selectedDateTime);
+        console.log("Data passada do resumo"+ selectedDateTime);
+        // Adiciona o agendamento e navega após a atualização
+        addAgendamento();
+        navigate('/pedido');
+    };
+
+
 
     return (
         <div className="flex flex-col min-h-screen pb-24 md:pb-10 defaultFontStyles md:pl-20">
@@ -50,22 +78,20 @@ export function ResumoEEscolhaData() {
 
             <div className="flex flex-col gap-8 px-4 mt-8 items-center">
                 <span className="text-customGray-400 md:text-sm md:font-bold">Resumo</span>
-                <div className=" flex flex-col justify-around bg-customGray-100 w-80 h-28 rounded-lg px-7 py-6 gap-3">
+                <div className="flex flex-col justify-around bg-customGray-100 w-80 h-28 rounded-lg px-7 py-6 gap-3">
                     <div className="flex items-center gap-2" title='Serviço escolhido'>
                         <ConciergeBell className="text-customBlack size-7 mr-2" />
-                        <span className="text-customBlack font-bold">Barba</span>
+                        <span className="text-customBlack font-bold">{selectedService?.title ? selectedService.title : 'Serviço'}</span>
                     </div>
-                    <div className="flex items-center gap-2 " title='Profissional Escolhido'>
+                    <div className="flex items-center gap-2" title='Profissional Escolhido'>
                         <User className="text-customBlack size-7 mr-2" />
-                        <span className="text-customGray-400">Qualquer disponível</span>
-                        <button className="text-blue-500 ml-auto flex items-center gap-3 md:hover:text-blue-700" title='Clique para alterar o Agendamento'>
-                            <ArrowLeftRight className=' size-7' />
-                            <span className="font-semibold ">Alterar</span>
+                        <span className="text-customGray-400">{selectedBarber ? selectedBarber : 'Qualquer um'}</span>
+                        <button onClick={() => navigate('/agendar')} className="text-blue-500 ml-auto flex items-center gap-3 md:hover:text-blue-700" title='Clique para alterar o Agendamento'>
+                            <ArrowLeftRight className='size-7' />
+                            <span className="font-semibold">Alterar</span>
                         </button>
-
                     </div>
                 </div>
-
 
                 <span className="text-customGray-400 md:text-sm md:font-bold">Datas Sugeridas</span>
                 <div className="flex items-center bg-customGray-100 p-2 rounded-xl w-full max-w-80 h-14 md:max-w-md" title='Pesquise pelo dia da semana'>
@@ -90,11 +116,14 @@ export function ResumoEEscolhaData() {
                                 </span>
                                 <div className="flex flex-wrap gap-2">
                                     {date.times.map((time, index) => (
-                                        <button key={index} className="bg-customGray-100 px-4 py-2 rounded-md flex items-center gap-2 md:hover:translate-y-[-4px] md:hover:font-bold md:hover:bg-customGray-400 ease-in-out text-customBlack md:hover:text-customGray-100" 
-                                        title='Clique para selecionar o horário do Agendamento'
-                                        onClick={() => navigate('/pedido')}>
+                                        <button 
+                                            key={index} 
+                                            className="bg-customGray-100 px-4 py-2 rounded-md flex items-center gap-2 md:hover:translate-y-[-4px] md:hover:font-bold md:hover:bg-customGray-400 ease-in-out text-customBlack md:hover:text-customGray-100" 
+                                            title='Clique para selecionar o horário do Agendamento'
+                                            onClick={() => handleSelectDateTime(date.date, time.time)}
+                                        >
                                             <Clock className='size-3 md:size-5' />
-                                            <span >{time.time}</span>
+                                            <span>{time.time}</span>
                                         </button>
                                     ))}
                                 </div>

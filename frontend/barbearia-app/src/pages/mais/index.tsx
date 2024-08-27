@@ -1,6 +1,6 @@
 import { ArrowLeft, UserCircle2, BellIcon, LogOutIcon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { Navbar } from '../../navbar/navbar';
+import { Navbar } from '../../components/navbar/navbar';
 
 export function Mais() {
     const navigate = useNavigate();

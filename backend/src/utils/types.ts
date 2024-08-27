@@ -6,6 +6,10 @@ declare module 'fastify' {
     user: UserPayload
     baber: BarberPayload
   }
+  
+  interface FastifyInstance {
+    authenticator: any
+  }
 }
 
 declare module '@fastify/jwt' {
@@ -13,6 +17,7 @@ declare module '@fastify/jwt' {
     user: UserPayload
     barber: BarberPayload
   }
+
 }
 
 type UserPayload = {

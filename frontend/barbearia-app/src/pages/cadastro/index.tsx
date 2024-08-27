@@ -1,5 +1,5 @@
 import logoWhite from '../../assets/whiteLogo.svg';
-import { Navbar } from '../../navbar/navbar';
+import { Navbar } from '../../components/navbar/navbar';
 import { SelectCountry } from '../../components/forms/select-country';
 import googleIcon from '../../assets/googleIcon.svg';
 

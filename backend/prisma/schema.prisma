@@ -19,6 +19,8 @@ model User {
   phone     String     @unique
   password  String
   schedules Schedule[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
 }
 
 model Barber {
@@ -26,16 +28,9 @@ model Barber {
   name      String
   phone     String     @unique
   password  String
-  services  Services[]
   schedules Schedule[]
-}
-
-model Services {
-  id       Int    @id @default(autoincrement())
-  name     String
-  price    Float
-  barberId String
-  barber   Barber @relation(fields: [barberId], references: [id])
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
 }
 
 model Schedule {
@@ -43,6 +38,7 @@ model Schedule {
   dateTime DateTime
   userId   String
   barberId String
+  service  String
   barber   Barber   @relation(fields: [barberId], references: [id])
   user     User     @relation(fields: [userId], references: [id])
 }

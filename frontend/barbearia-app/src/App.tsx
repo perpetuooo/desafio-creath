@@ -5,9 +5,9 @@ import {
 
 import { HomePage } from "./pages/homepage";
 import { Agendar } from "./pages/agendar";
-import { SelecionarBarbeiro } from "./pages/agendar/selecionar-barbeiros";
-import { ResumoEEscolhaData } from "./pages/agendar/resumo-e-escolha-data";
-import { Pedido } from "./pages/agendar/pedido";
+import { SelecionarBarbeiro } from "./pages/agendar/steps/selecionar-barbeiros";
+import { ResumoEEscolhaData } from "./pages/agendar/steps/resumo-e-escolha-data";
+import { Pedido } from "./pages/agendar/steps/pedido";
 import { Agendamento } from "./pages/agendamento";
 import { Mais } from "./pages/mais";
 import { MinhasInformacoes } from "./pages/mais/steps/minhas-informacoes";
@@ -61,4 +61,3 @@ const router = createBrowserRouter([
 export function App() {
   return <RouterProvider router={router}/>
 }
-

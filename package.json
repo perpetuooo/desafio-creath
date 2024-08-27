@@ -2,9 +2,15 @@
   "dependencies": {
     "axios": "^1.7.4",
     "date-fns": "^3.6.0",
+    "fastify": "^4.28.1",
     "react-router-dom": "^6.26.1",
     "react-select": "^5.8.0",
     "react-select-country-list": "^2.2.3",
-    "react-world-flags": "^1.6.0"
+    "react-world-flags": "^1.6.0",
+    "twilio": "^5.2.3"
+  },
+  "devDependencies": {
+    "@types/node": "^22.5.0",
+    "ts-node": "^10.9.2"
   }
 }
