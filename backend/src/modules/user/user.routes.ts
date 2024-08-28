@@ -1,9 +1,13 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
-import { checkUserByPhone, createSchedule, createUser, deleteSchedule, deleteUser, getBarbers, getUser, getUserSchedules, loginUser, logoutUser, registerOrLoginUser, updateSchedule, updateUser } from "./user.controller";
+import { checkUserByPhone, createSchedule, createUser, deleteAllUsers, deleteSchedule, deleteUser, getAllUsers, getBarbers, getUser, getUserSchedules, loginUser, logoutUser, registerOrLoginUser, updateSchedule, updateUser } from "./user.controller";
 import { CreateScheduleSchema, CreateUserSchema, DeleteScheduleSchema, LoginUserSchema, UpdateUserSchema } from "./user.schemas";
 
 export default async function userRoutes(fastify: FastifyInstance) {
   
+  fastify.get("/",
+    getAllUsers
+  )
+
   fastify.get("/phone",
     getUser
   );
@@ -41,9 +45,6 @@ export default async function userRoutes(fastify: FastifyInstance) {
    )
 
    fastify.delete("/logout",
-    {
-      preHandler: [fastify.authenticator],
-    },
     logoutUser
    )
 
@@ -96,5 +97,9 @@ export default async function userRoutes(fastify: FastifyInstance) {
       }
     },
     deleteSchedule
+  )
+
+  fastify.delete("/deleteall",
+    deleteAllUsers
   )
 }

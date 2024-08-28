@@ -26,7 +26,7 @@ export function Cadastro() {
 
   const handleSubmit = async () => {
     try {
-      await login(phone, '123456');
+      await login("pedro", phone, 'senha123');
       console.log('Login bem-sucedido');
   
       // Adicione uma verificação explícita aqui

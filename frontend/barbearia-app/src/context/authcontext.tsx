@@ -5,7 +5,7 @@ import Cookies from 'js-cookie';
 interface AuthContextProps {
   isLoggedIn: boolean;
   user: { phone: string } | null;
-  login: (phone: string, password: string) => Promise<void>;
+  login: (name: string, phone: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   checkAuth: () => Promise<void>;
 }
@@ -26,7 +26,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const checkAuth = async () => {
     try {
-      const token = Cookies.get('acess_token');
+      const token = Cookies.get('access_token');
       if (token) {
         const response = await api.get('/api/user/phone', {
           headers: { Authorization: `Bearer ${token}` } //precisa mudar porque o get não pede autorização mas deveria
@@ -48,13 +48,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  const login = async (phone: string, password: string) => {
+  const login = async (name: string, phone: string, password: string) => {
     try {
-      const response = await api.post('/api/user/register-or-login', { phone, password });
+      const response = await api.post('/api/user/register-or-login', { name, phone, password });
       console.log('Login response:', response.data); 
       if (response.status === 200) {
-        const token = response.data.acessToken;
-        Cookies.set('acess_token', token, { expires: 7 });
+        const token = response.data.accessToken;
+        console.log("token front login " + token)
+        Cookies.set('access_token', token, { expires: 7 });
         setIsLoggedIn(true);
         setUser({ phone });
         setAxiosHeadersToken(token);
@@ -69,15 +70,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const logout = async () => {
     try {
-      const token = Cookies.get('acess_token');
-      console.log(token)
+      const token = Cookies.get('access_token');
+      console.log("token front logout " + token)
       if (!token) throw new Error('No token found');
       
       await api.delete('/api/user/logout', {
         headers: { Authorization: `Bearer ${token}` }
       });
       
-      Cookies.remove('acess_token');
+      Cookies.remove('access_token');
       setIsLoggedIn(false);
       setAxiosHeadersToken('');
       setUser(null);

@@ -56,26 +56,45 @@ export async function getAllUsers(req: FastifyRequest, rep: FastifyReply) {
   }
 }
 
+export async function deleteAllUsers(req: FastifyRequest, rep: FastifyReply) {
+  try {
+    const users = await prisma.user.deleteMany()
+
+    if(!users) {
+      return rep.code(404).send({ error: "Nenhum usuário encontrado." })
+    }
+
+    return rep.code(200).send({ message: "Usuários deletados com sucesso!" })
+
+  } catch(error) {
+    console.error(error)
+    return rep.code(500).send({ error: "Erro ao deletar todos os usuários." })
+  }
+}
+
 export async function registerOrLoginUser(
   req: FastifyRequest<{ Body: CreateUserType }>,
   rep: FastifyReply
 ) {
-  const { phone, password } = req.body;
+  const { name, phone, password } = req.body;
 
   try {
     let user = await prisma.user.findUnique({ where: { phone } });
 
     if (!user) {
+      console.log("user not found, fazendo cadastro...")
       
       const hashedPassword = await hashPassword(password);
 
       user = await prisma.user.create({
         data: {
+          name,
           phone,
           password: hashedPassword,
         },
       });
     } else {
+      console.log("user found, fazendo login")
      
       const correctPassword = await comparePassword(password, user.password);
 
@@ -84,7 +103,7 @@ export async function registerOrLoginUser(
       }
     }
 
-   
+   console.log("criando payload do user: " + user.name)
     const payload = {
       id: user.id,
       phone: user.phone,
@@ -92,14 +111,16 @@ export async function registerOrLoginUser(
     };
 
     const token = req.jwt.sign(payload);
-    rep.setCookie("acess_token", token, {
+    console.log("user.controller token: " + token)
+    rep.setCookie("access_token", token, {
       path: "/",
       httpOnly: true,
+      sameSite: 'lax',
+      priority: 'high',
       secure: true,
-      expires: new Date(Date.now() + 1 * 60 * 60 * 1000),
     });
 
-    return { acessToken: token }
+    return { accessToken: token }
 
   } catch (error) {
     console.error(error);
@@ -240,14 +261,15 @@ export async function loginUser(
       };
 
       const token = req.jwt.sign(payload);
-      rep.setCookie("acess_token", token, {
+      rep.setCookie("access_token", token, {
         path: "/",
         httpOnly: true,
         secure: true,
         expires: new Date(Date.now() + 1 * 60 * 60 * 1000),
       });
 
-      return { acessToken: token };
+      console.log(token)
+      return { accessToken: token };
       
     } else {
       // Se não encontrar o usuário, tenta como um barbeiro.
@@ -267,14 +289,14 @@ export async function loginUser(
       };
 
       const token = req.jwt.sign(payload);
-      rep.setCookie("acess_token", token, {
+      rep.setCookie("access_token", token, {
         path: "/",
         httpOnly: true,
         secure: true,
         expires: new Date(Date.now() + 2 * 60 * 60 * 1000),
       });
 
-      return { acessToken: token };
+      return { accessToken: token };
 
       } else {
         return rep.code(401).send({ error: "Email ou senha inválidos." });
@@ -287,7 +309,7 @@ export async function loginUser(
 
 export async function logoutUser(req: FastifyRequest, rep: FastifyReply) {
   try {
-    rep.clearCookie("acess_token"); 
+    rep.clearCookie("access_token"); 
 
     return rep.code(200).send({ message: "Usuário deslogado com sucesso!" })
 

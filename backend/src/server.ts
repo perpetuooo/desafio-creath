@@ -10,7 +10,7 @@ import cookies, { FastifyCookieOptions } from "@fastify/cookie";
 
 const prisma = new PrismaClient();
 
-const app = Fastify({ logger: true }).withTypeProvider<ZodTypeProvider>();
+const app = Fastify({ logger: false }).withTypeProvider<ZodTypeProvider>();
 
 app.register(cors, {
   origin: "*",
@@ -23,8 +23,8 @@ app.register(cookies, {
 } as FastifyCookieOptions)
 
 app.decorate('authenticator', async (req: FastifyRequest, rep: FastifyReply) => {
-  const token = req.cookies.acess_token;
-  console.log('oi do back ' + token)
+  const token = req.cookies.access_token;
+  console.log('token back: ' + token)
   if (!token) {
     return rep.status(401).send({ error: "Autenticação falhou" });
   }

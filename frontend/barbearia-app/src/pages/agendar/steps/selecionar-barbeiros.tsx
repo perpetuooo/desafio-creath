@@ -28,7 +28,7 @@ export function SelecionarBarbeiro() {
         console.log('Buscando barbeiros...');
         try {
            
-            const response = await api.get<Barbeiro[]>('/api/barber/barbers'); 
+            const response = await api.get<Barbeiro[]>('/api/user/barbers'); 
             setBarbeiros(response.data);
         } catch (error) {
             console.error('Erro ao buscar barbeiros:', error);
