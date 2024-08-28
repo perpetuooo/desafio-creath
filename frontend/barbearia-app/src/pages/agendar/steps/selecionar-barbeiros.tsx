@@ -20,11 +20,14 @@ export function SelecionarBarbeiro() {
 
     useEffect(() => {
         validateStep();
-        fetchBarbeiros();
-    }, [validateStep]);
+        getBarbeiros();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
-    const fetchBarbeiros = async () => {
+    const getBarbeiros = async () => {
+        console.log('Buscando barbeiros...');
         try {
+           
             const response = await api.get<Barbeiro[]>('/api/barber/barbers'); 
             setBarbeiros(response.data);
         } catch (error) {
@@ -34,6 +37,7 @@ export function SelecionarBarbeiro() {
 
     const handleSelectBarber = (barbeiro: Barbeiro) => {
         setSelectedBarber(barbeiro.name); 
+        console.log(barbeiro)
         navigate('/resumo');
     };
 

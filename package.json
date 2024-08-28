@@ -3,6 +3,7 @@
     "axios": "^1.7.4",
     "date-fns": "^3.6.0",
     "fastify": "^4.28.1",
+    "fastify-zod": "^1.4.0",
     "react-router-dom": "^6.26.1",
     "react-select": "^5.8.0",
     "react-select-country-list": "^2.2.3",

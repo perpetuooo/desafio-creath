@@ -2,12 +2,19 @@ import { z } from "zod";
 
 // Esquema de validação para criação de um novo usuário
 export const CreateUserSchema = z.object({
-  name: z.string().min(1, "Digite seu nome"),
+  name: z.string().optional(),
   phone: z
     .string({
       required_error: "Digite seu telefone",
       invalid_type_error: "Telefone inválido",
     }),
+  email: z
+    .string({
+      required_error: "Digite seu e-mail",
+      invalid_type_error: "E-mail inválido",
+    })
+    .email()
+    .optional(), 
   password: z
     .string({
       required_error: "Digite sua senha",
@@ -34,8 +41,9 @@ password: z
 export const UpdateUserSchema = z.object({
   name: z.string().optional(),
   phone: z.string().optional(),
-  password: z.string().optional()
-}).optional()
+  email: z.string().email().optional(), // Adiciona o campo email como opcional
+  password: z.string().optional(),
+}).optional();
 
 // Esquema de validação para um usuário existente.
 // Deixei o nome e email para validação, porém acho que seria melhor colocar só o email ou o nome para mais agilidade.
@@ -52,6 +60,10 @@ export const UserSchema = z.object({
   }),
   createdAt: z.string(),
   updatedAt: z.string(),
+});
+
+export const PhoneQuerySchema = z.object({
+  phone: z.string().min(10, "Telefone é obrigatório")
 });
 
 export const CreateScheduleSchema = z.object({

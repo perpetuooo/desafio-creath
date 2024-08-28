@@ -13,6 +13,7 @@ import { Mais } from "./pages/mais";
 import { MinhasInformacoes } from "./pages/mais/steps/minhas-informacoes";
 import { Notificacoes } from "./pages/mais/steps/notificações";
 import { Cadastro } from "./pages/cadastro";
+import { Sair } from "./pages/mais/steps/sair";
 
 const router = createBrowserRouter([
   {
@@ -54,6 +55,11 @@ const router = createBrowserRouter([
   {
     path: "/cadastro",
     element: <Cadastro/>,
+  },
+  
+  {
+    path: "/sair",
+    element: <Sair/>,
   },
 
 ]);

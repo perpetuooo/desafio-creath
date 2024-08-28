@@ -3,23 +3,24 @@ import prisma from "../../utils/prisma";
 import { CreateScheduleType, CreateUserType, DeleteScheduleType, LoginUserType, UpdateScheduleType, UpdateUserType } from "./user.schemas";
 import { comparePassword, hashPassword } from "./user.utils";
 
-export async function getUsers(req: FastifyRequest, rep: FastifyReply) {
+export async function getAllUsers(req: FastifyRequest, rep: FastifyReply) {
   try {
-    const { name } = req.query as { name?: string }
+    const { phone } = req.query as { phone?: string };
 
-    if (name) {
+    if (phone) {
         const users = await prisma.user.findMany({
             select: {
                 id: true,
                 name: true,
                 phone: true,
+                email: true,
                 schedules: true,
                 createdAt: true,
                 updatedAt: true,
             },
             where: {
-                name: {
-                    contains: name.toLowerCase(),
+                phone: {
+                    contains: phone.toLowerCase(),
                 }
             }
         })
@@ -36,6 +37,7 @@ export async function getUsers(req: FastifyRequest, rep: FastifyReply) {
                 id: true,
                 name: true,
                 phone: true,
+                email: true,
                 schedules: true,
                 createdAt: true,
                 updatedAt: true,
@@ -53,6 +55,98 @@ export async function getUsers(req: FastifyRequest, rep: FastifyReply) {
       return rep.code(500).send({ message: "Erro ao encontrar usuários." })
   }
 }
+
+export async function registerOrLoginUser(
+  req: FastifyRequest<{ Body: CreateUserType }>,
+  rep: FastifyReply
+) {
+  const { phone, password } = req.body;
+
+  try {
+    let user = await prisma.user.findUnique({ where: { phone } });
+
+    if (!user) {
+      
+      const hashedPassword = await hashPassword(password);
+
+      user = await prisma.user.create({
+        data: {
+          phone,
+          password: hashedPassword,
+        },
+      });
+    } else {
+     
+      const correctPassword = await comparePassword(password, user.password);
+
+      if (!correctPassword) {
+        return rep.code(401).send({ error: "Senha incorreta." });
+      }
+    }
+
+   
+    const payload = {
+      id: user.id,
+      phone: user.phone,
+      name: user.name,
+    };
+
+    const token = req.jwt.sign(payload);
+    rep.setCookie("acess_token", token, {
+      path: "/",
+      httpOnly: true,
+      secure: true,
+      expires: new Date(Date.now() + 1 * 60 * 60 * 1000),
+    });
+
+    return { acessToken: token }
+
+  } catch (error) {
+    console.error(error);
+    return rep.code(500).send({ error: "Erro ao processar a requisição." });
+  }
+}
+
+
+
+export async function getUser(req: FastifyRequest, rep: FastifyReply) {
+  try {
+    const { phone } = req.query as { phone?: string };
+
+    if (!phone) {
+      return rep.code(400).send({ error: "Parâmetro 'phone' é obrigatório." });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { phone },
+      select: {
+        id: true,
+        name: true,
+        phone: true,
+        email: true,
+        schedules: true,
+        createdAt: true,
+        updatedAt: true,
+      }
+    });
+
+    if (!user) {
+      return rep.code(404).send({ error: "Usuário não encontrado..." });
+    }
+
+    return rep.code(200).send(user);
+  } catch (err) {
+    console.error(err);
+    return rep.code(500).send({ message: "Erro ao encontrar usuário." });
+  }
+}
+
+
+export async function checkUserByPhone(phone: string) {
+  return await prisma.user.findUnique({ where: { phone } });
+}
+
+
 
 export async function getBarbers(req: FastifyRequest, rep: FastifyReply) {
   try {
@@ -193,7 +287,7 @@ export async function loginUser(
 
 export async function logoutUser(req: FastifyRequest, rep: FastifyReply) {
   try {
-    rep.clearCookie("acess_token");
+    rep.clearCookie("acess_token"); 
 
     return rep.code(200).send({ message: "Usuário deslogado com sucesso!" })
 

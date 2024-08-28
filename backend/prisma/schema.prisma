@@ -15,9 +15,10 @@ datasource db {
 
 model User {
   id        String     @id @default(uuid())
-  name      String
+  name      String?
   phone     String     @unique
   password  String
+  email     String?
   schedules Schedule[]
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt

@@ -1,12 +1,22 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
-import { createSchedule, createUser, deleteSchedule, deleteUser, getBarbers, getUsers, getUserSchedules, loginUser, logoutUser, updateSchedule, updateUser } from "./user.controller";
+import { checkUserByPhone, createSchedule, createUser, deleteSchedule, deleteUser, getBarbers, getUser, getUserSchedules, loginUser, logoutUser, registerOrLoginUser, updateSchedule, updateUser } from "./user.controller";
 import { CreateScheduleSchema, CreateUserSchema, DeleteScheduleSchema, LoginUserSchema, UpdateUserSchema } from "./user.schemas";
 
 export default async function userRoutes(fastify: FastifyInstance) {
   
-  fastify.get("/:name", 
-    getUsers
+  fastify.get("/phone",
+    getUser
   );
+
+  fastify.post("/register-or-login", 
+    {
+      schema: {
+        body: CreateUserSchema
+      }
+    },
+    registerOrLoginUser
+  );
+  
 
   fastify.get("/barbers:name",
     getBarbers

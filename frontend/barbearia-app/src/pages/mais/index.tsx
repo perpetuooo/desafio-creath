@@ -32,7 +32,7 @@ export function Mais() {
                     </button>
                     <button
                         className="flex items-center gap-4 text-customBlack md:hover:translate-y-[-4px] md:hover:font-bold"
-                        onClick={() => navigate('/')}
+                        onClick={() => navigate('/sair')}
                     >
                         <LogOutIcon className="size-5 md:size-8 " />
                         <span>Sair</span>
