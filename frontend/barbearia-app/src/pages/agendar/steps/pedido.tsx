@@ -53,13 +53,15 @@ export function Pedido() {
             console.log("Barber ID:", agendamento.barber.id);
             console.log("Service Title:", agendamento.service.title);
             console.log("Service Value:", agendamento.service.value);
+            console.log("Barber Name:", agendamento.barber.name);
         });
         
         const transformedAgendamentos = agendamentos.map(agendamento => ({
             dateTime: agendamento.dateTime.toISOString(), 
             barberId: agendamento.barber.id,
             service: agendamento.service.title,
-            serviceValue: agendamento.service.value
+            serviceValue: agendamento.service.value,
+            barberName: agendamento.barber.name
         }));
     
         try {
@@ -89,9 +91,10 @@ export function Pedido() {
                     <div className="flex flex-col gap-8 items-center w-full max-w-md space-y-3">
                         {agendamentos.length > 0 ? (
                             agendamentos.map((Agendamentos, index) => {
-                                const formattedMonth = Agendamentos.dateTime ? format(Agendamentos.dateTime, 'MMM', { locale: ptBR }) : '';
-                                const formattedDay = Agendamentos.dateTime ? format(Agendamentos.dateTime, 'dd', { locale: ptBR }) : '';
-                                const formattedTime = Agendamentos.dateTime ? format(Agendamentos.dateTime, 'HH:mm', { locale: ptBR }) : '';
+                                const agendamentoDateTime = new Date(Agendamentos.dateTime);
+                                const formattedMonth = agendamentoDateTime ? format(Agendamentos.dateTime, 'MMM'): '';
+                                const formattedDay = agendamentoDateTime ? format(Agendamentos.dateTime, 'dd'): '';
+                                const formattedTime = agendamentoDateTime ? format(Agendamentos.dateTime, 'HH:mm'): '';
 
                                 return (
                                     <div key={index} className="flex bg-customGray-100 w-full md:w-96 h-28 rounded-xl px-7 py-6 gap-3 shadow-navbar">

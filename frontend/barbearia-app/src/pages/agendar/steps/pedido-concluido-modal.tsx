@@ -29,9 +29,9 @@ export function PedidoConcluidoModal(props: PedidoConcluidoModalProps) {
                     <span className="font-bold text-customBlack text-center">
                         Agendamento realizado
                     </span>
-                    <button className="text-customGray-400 hover:underline flex items-center gap-2 font-bold">
+                    <a href='https://calendar.google.com/calendar/u/0/r' target='blank' className="text-customGray-400 hover:underline flex items-center gap-2 font-bold">
                         <CalendarClockIcon className="size-5 text-blue-500"/>Adicionar ao Google Agenda
-                    </button>
+                    </a >
                     <button 
                         className="bg-customGray-400 transform hover:translate-y-[-5px] ease-in-out duration-300 text-customGray-100 px-4 py-2 rounded-md mt-4 hover:bg-customGray-500 w-32"
                         onClick={handleClose} 

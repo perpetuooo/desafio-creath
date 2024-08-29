@@ -20,6 +20,11 @@ export const CreateUserSchema = z.object({
       required_error: "Digite sua senha",
     })
     .min(6, "A senha deve ter pelo menos 6 caracteres"),
+    birthDate: z
+    .string({
+      invalid_type_error: "Data de nascimento inválida",
+    })
+    .optional(),
 });
 
 // Esquema de validação para realizar o login de um usuário.
@@ -43,6 +48,7 @@ export const UpdateUserSchema = z.object({
   phone: z.string().optional(),
   email: z.string().email().optional(), // Adiciona o campo email como opcional
   password: z.string().optional(),
+  birthDate: z.string().optional(),
 }).optional();
 
 // Esquema de validação para um usuário existente.
@@ -95,6 +101,11 @@ export const CreateScheduleSchema = z.object({
   .string({
     required_error: "Escolha um serviço.",
     invalid_type_error: "Serviço inválido."
+  }),
+  barberName: z
+  .string({
+    required_error: "Defina um barbeiro.",
+    invalid_type_error: "Barbeiro inválido."
   })
 })
 
@@ -104,12 +115,12 @@ export const UpdateScheduleSchema = z.object({
   userId: z.string().uuid().optional(),
   barberId: z.string().uuid().optional(),
   service: z.string().optional(),
+  barberName: z.string().optional(),
 })
 
 export const DeleteScheduleSchema = z.object({
-  id: z.number()
-})
-
+  id: z.number().int()
+});
 // Tipos derivados dos esquemas
 export type CreateUserType = z.infer<typeof CreateUserSchema>;
 export type LoginUserType = z.infer<typeof LoginUserSchema>;

@@ -1,12 +1,21 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { api } from '../lib/axios';
 
+interface User {
+  id: string;
+  name?: string;
+  phone: string;
+  email?: string;
+  birthDate?: string; 
+}
+
 interface AuthContextProps {
   isLoggedIn: boolean;
-  user: { phone: string } | null;
+  user: User | null;
   login: (phone: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   checkAuth: () => Promise<void>;
+  loading: boolean;
 }
 
 const AuthContext = createContext<AuthContextProps | undefined>(undefined);
@@ -21,14 +30,17 @@ export const useAuth = () => {
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [user, setUser] = useState<{ phone: string } | null>(null);
-  
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+
   const checkAuth = async () => {
+    if (!loading) return;  // Impede que a função seja chamada se `loading` for falso
+
     try {
       const response = await api.get('/api/user/getUser');
       if (response.status === 200) {
         setIsLoggedIn(true);
-        setUser(response.data[0]);
+        setUser(response.data);  // Define o estado do usuário ao receber a resposta
       } else {
         setIsLoggedIn(false);
         setUser(null);
@@ -36,54 +48,42 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     } catch {
       setIsLoggedIn(false);
       setUser(null);
+    } finally {
+      setLoading(false);  // Define `loading` como falso ao final da requisição
     }
   };
 
   const login = async (phone: string, password: string) => {
     try {
-      // Envia a requisição de login ao backend
       const response = await api.post('/api/user/register-or-login', { phone, password });
-      console.log('Login response:', response.data);
-  
-      // A validação do login é feita pelo backend
       if (response.status === 200) {
-        // Supondo que o backend define o cookie httpOnly
-        // Atualiza o estado de autenticação no frontend
         setIsLoggedIn(true);
-        setUser({ phone });
-      } else {
-        // Caso contrário, ajuste o estado de autenticação
-        setIsLoggedIn(false);
-        setUser(null);
+        const userData = await api.get('/api/user/getUser');
+        setUser(userData.data);
       }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      console.error('Erro ao logar:', error);
       setIsLoggedIn(false);
       setUser(null);
     }
   };
-  
 
   const logout = async () => {
     try {
-      // Envia a requisição de logout ao backend
       await api.delete('/api/user/logout');
-  
-      // Atualiza o estado de autenticação no frontend
       setIsLoggedIn(false);
       setUser(null);
     } catch (error) {
       console.error('Erro ao deslogar:', error);
     }
   };
-  
 
   useEffect(() => {
-    checkAuth();
-  }, []);
+    checkAuth();  // Chama `checkAuth` ao montar o componente
+  }, []);  // Passa uma lista de dependências vazia para chamar a função apenas uma vez
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, user, login, logout, checkAuth }}>
+    <AuthContext.Provider value={{ isLoggedIn, user, loading ,login, logout, checkAuth }}>
       {children}
     </AuthContext.Provider>
   );

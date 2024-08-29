@@ -3,58 +3,58 @@ import prisma from "../../utils/prisma";
 import { CreateScheduleType, CreateUserType, DeleteScheduleType, LoginUserType, UpdateScheduleType, UpdateUserType } from "./user.schemas";
 import { comparePassword, hashPassword } from "./user.utils";
 
-export async function getAllUsers(req: FastifyRequest, rep: FastifyReply) {
-  try {
-    const { phone } = req.query as { phone?: string };
+// export async function getAllUsers(req: FastifyRequest, rep: FastifyReply) {
+//   try {
 
-    if (phone) {
-        const users = await prisma.user.findMany({
-            select: {
-                id: true,
-                name: true,
-                phone: true,
-                email: true,
-                schedules: true,
-                createdAt: true,
-                updatedAt: true,
-            },
-            where: {
-                phone: {
-                    contains: phone.toLowerCase(),
-                }
-            }
-        })
 
-        if (!users) {
-          return rep.code(404).send({ error: "Usuário não encontrado..." })
-        }
+//     if (phone) {
+//       const users = await prisma.user.findMany({
+//         select: {
+//           id: true,
+//           name: true,
+//           phone: true,
+//           email: true,
+//           schedules: true,
+//           createdAt: true,
+//           updatedAt: true,
+//         },
+//         where: {
+//           phone: {
+//             contains: phone.toLowerCase(),
+//           }
+//         }
+//       })
 
-        return rep.code(200).send(users)
+//       if (!users) {
+//         return rep.code(404).send({ error: "Usuário não encontrado..." })
+//       }
 
-    } else {
-        const users = await prisma.user.findMany({
-            select: {
-                id: true,
-                name: true,
-                phone: true,
-                email: true,
-                schedules: true,
-                createdAt: true,
-                updatedAt: true,
-            }
-        })
+//       return rep.code(200).send(users)
 
-        if (!users) {
-          return rep.code(404).send({ error: "Usuário não encontrado..." })
-        }
+//     } else {
+//       const users = await prisma.user.findMany({
+//         select: {
+//           id: true,
+//           name: true,
+//           phone: true,
+//           email: true,
+//           schedules: true,
+//           createdAt: true,
+//           updatedAt: true,
+//         }
+//       })
 
-        return rep.code(200).send(users)
-    }
-  } catch(err) {
-      console.error(err)
-      return rep.code(500).send({ message: "Erro ao encontrar usuários." })
-  }
-}
+//       if (!users) {
+//         return rep.code(404).send({ error: "Usuário não encontrado..." })
+//       }
+
+//       return rep.code(200).send(users)
+//     }
+//   } catch (err) {
+//     console.error(err)
+//     return rep.code(500).send({ message: "Erro ao encontrar usuários." })
+//   }
+// }
 
 export async function deleteAllUsers(req: FastifyRequest, rep: FastifyReply) {
   try {
@@ -158,13 +158,10 @@ export async function getUserByPhone(req: FastifyRequest, rep: FastifyReply) {
     const user = await prisma.user.findUnique({
       where: { phone },
       select: {
-        id: true,
         name: true,
         phone: true,
         email: true,
-        schedules: true,
-        createdAt: true,
-        updatedAt: true,
+        birthDate:true,
       }
     });
 
@@ -335,11 +332,17 @@ export async function updateUser(
 ) {  
   try {
     const id = req.user.id;
-    const { ...data } = req.body
+    const { ...data } = req.body;
+
+    // Converte a string para Date se existirem
+    const updatedData: any = {
+      ...data,
+      ...(data.birthDate && { birthDate: new Date(data.birthDate) }),
+    };
     
     const updatedUser = await prisma.user.update({
       where: { id },
-      data: { ...data },
+      data: updatedData,
     });
 
     if (!updatedUser) {
@@ -377,7 +380,7 @@ export async function deleteUser(req: FastifyRequest, rep: FastifyReply) {
 export async function createSchedule(req: FastifyRequest<{ Body: Array<CreateScheduleType> }>, rep: FastifyReply) {
   const schedules = req.body;
 
-  // Verifique se o corpo da requisição é um array de agendamentos
+ 
   if (!Array.isArray(schedules) || schedules.length === 0) {
     return rep.code(400).send({ error: "Nenhum agendamento fornecido." });
   }
@@ -481,3 +484,6 @@ export async function deleteSchedule(req: FastifyRequest<{Body: DeleteScheduleTy
     return rep.code(500).send({ error: "Erro ao deletar agendamento." })
   }
 }
+
+
+

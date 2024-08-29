@@ -1,18 +1,43 @@
 import { X } from 'lucide-react';
 import { useState } from 'react';
 import { ReagendarModal } from './reagendarModal';
+import { api } from '../../lib/axios'; 
+import { Schedules } from './index';
 
 interface ConfirmarCancelarAgendamentoProps {
     closeModalAgendamento: () => void;
     confirmarAgendamento: () => void;
+    agendamentoId: number | undefined; 
+    schedule?: Schedules | null  ;
 }
 
-export function ConfirmarCancelarAgendamentoModal({ closeModalAgendamento, confirmarAgendamento }: ConfirmarCancelarAgendamentoProps) {
+export function ConfirmarCancelarAgendamentoModal({ closeModalAgendamento, confirmarAgendamento, agendamentoId, schedule }: ConfirmarCancelarAgendamentoProps) {
     const [isReagendarModalOpen, setIsReagendarModalOpen] = useState(false);
+    const [savedSchedule, setSavedSchedule] = useState<Schedules | null>(null);
+    console.log("ConfirmarCancelar  1 " + schedule)
+    const handleConfirmarCancelarAgendamento = async () => {
+        console.log("Agendamento no ConfirmarCancelar " + agendamentoId);
+        
+        try {
+            if (agendamentoId === undefined) {
+                console.error("ID do agendamento não está definido.");
+                return;
+            }
 
-    const handleConfirmarCancelarAgendamento = () => {
-        confirmarAgendamento();
-        setIsReagendarModalOpen(true);
+            // Salva o agendamento antes de excluir
+            if (schedule) {
+                console.log("ConfirmarCancelar" + schedule)
+                setSavedSchedule(schedule);
+            }
+            await api.delete('api/user/erase', {
+                data: { id: agendamentoId }   
+            });
+            confirmarAgendamento();
+            setIsReagendarModalOpen(true);
+        } catch (error) {
+            console.error("Erro ao cancelar agendamento:", error);
+            
+        }
     };
 
     const closeReagendarModal = () => {
@@ -48,14 +73,15 @@ export function ConfirmarCancelarAgendamentoModal({ closeModalAgendamento, confi
                                 className="transform hover:translate-y-[-5px] ease-in-out duration-300 px-4 py-2 rounded-md text-green-500 w-24"
                                 onClick={handleConfirmarCancelarAgendamento}
                             >
-                            Sim
+                                Sim
                             </button>
                         </div>
                     </div>
                 </div>
             </div>
             {isReagendarModalOpen && (
-                <ReagendarModal closeModal={closeReagendarModal} />
+                <ReagendarModal closeModal={closeReagendarModal}  
+                schedule={savedSchedule}/>
             )}
         </>
     );

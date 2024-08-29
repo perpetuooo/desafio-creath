@@ -1,12 +1,14 @@
 import { X, CalendarRange, AlarmClock, ConciergeBellIcon, UserIcon, Bookmark } from 'lucide-react';
+import { Schedules } from './index';
 
 interface CancelarAgendamentoModalProps {
     closeModalAgendamento: () => void;
     openConfirmarCancelarModal: () => void;
+    schedule: Schedules; // Recebe o agendamento como prop
 }
 
-export function CancelarAgendamentoModal({ closeModalAgendamento, openConfirmarCancelarModal }: CancelarAgendamentoModalProps) {
-
+export function CancelarAgendamentoModal({ closeModalAgendamento, openConfirmarCancelarModal, schedule }: CancelarAgendamentoModalProps) {
+    console.log("CancelarModal" + schedule)
     return (
         <div className="fixed inset-0 defaultFontStyles flex items-center justify-center bg-black bg-opacity-50">
             <div className="w-72 bg-white rounded-xl shadow-navbar">
@@ -22,19 +24,19 @@ export function CancelarAgendamentoModal({ closeModalAgendamento, openConfirmarC
                     <div className="flex flex-col gap-3 space-y-2 text-left">
                         <div className="flex items-center gap-4">
                             <CalendarRange className="size-5 font-bold" />
-                            <span className="text-customGray-300">02/08/24, sexta-feira</span>
+                            <span className="text-customGray-300">{new Date(schedule.dateTime).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
                         </div>
                         <div className="flex items-center gap-4">
                             <AlarmClock className="size-5 font-bold" />
-                            <span className="text-customGray-300">11:00 às 11:30</span>
+                            <span className="text-customGray-300">{new Date(schedule.dateTime).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })} às {new Date(new Date(schedule.dateTime).getTime() + 30 * 60000).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</span>
                         </div>
                         <div className="flex items-center gap-4">
                             <ConciergeBellIcon className="size-5 font-bold" />
-                            <span className="text-customGray-300">Barba</span>
+                            <span className="text-customGray-300">{schedule.service}</span>
                         </div>
                         <div className="flex items-center gap-4">
                             <UserIcon className="size-5 font-black" />
-                            <span className="text-customGray-300">Qualquer Disponível</span>
+                            <span className="text-customGray-300">{schedule.barberName}</span>
                         </div>
                         <div className="flex items-center gap-4">
                             <Bookmark className="size-5 font-bold" />
@@ -59,5 +61,3 @@ export function CancelarAgendamentoModal({ closeModalAgendamento, openConfirmarC
         </div>
     );
 }
-
-

@@ -7,15 +7,14 @@ import { ConfirmarCancelarAgendamentoModal } from './confirmar-cancelarAgendamen
 import { ReagendarModal } from './reagendarModal';
 import { useAuth } from '../../context/authcontext'; 
 import { api } from '../../lib/axios';
-
-interface Schedules {
+export interface Schedules {
     id: number
     dateTime: string
     barberId: string
     service: string
     serviceValue:string
+    barberName: string
 }
-
 
 export function Agendamento() {
     const navigate = useNavigate();
@@ -24,40 +23,43 @@ export function Agendamento() {
     const [isConfirmarCancelarModalOpen, setIsConfirmarCancelarModalOpen] = useState(false);
     const [isReagendarModalOpen, setIsReagendarModalOpen] = useState(false);
     const [schedules, setSchedules] = useState<Schedules[]>([]);
-    const [loading, setLoading] = useState(true);
+    const {loading} = useAuth();
     const [error, setError] = useState('');
+    const [selectedSchedule, setSelectedSchedule] = useState<Schedules | null>(null); // Adiciona o estado para o agendamento selecionado
 
     useEffect(() => {
-        console.log(isLoggedIn)
-        if (!isLoggedIn) {
-            navigate('/cadastro');
-        } else {
-            // Função para buscar os agendamentos
-            const getSchedules = async () => {
-                try {
-                    const response = await api.get<Schedules[]>('/api/user/schedules')
-                    setSchedules(response.data);
-                } catch (err) {
-                    setError("Erro ao carregar agendamentos." +err);
-                } finally {
-                    setLoading(false);
-                }
-            };
+        if (!loading) {
+            if (!isLoggedIn) {
+                navigate('/cadastro');
+            } else {
+                const getSchedules = async () => {
+                    try {
+                        const response = await api.get<Schedules[]>('/api/user/schedules');
+                        setSchedules(response.data);
+                    } catch (err) {
+                        setError("Erro ao carregar agendamentos." + err);
+                    } 
+                };
 
-            getSchedules();
+                getSchedules();
+            }
         }
-    }, [isLoggedIn, navigate]);
+    }, [isLoggedIn, navigate,loading]);
 
-    const openModalAgendamento = () => {
+    const openModalAgendamento = (schedule: Schedules) => {
+        console.log("Agendamento selecionado:", schedule);
+        setSelectedSchedule(schedule); // Define o agendamento selecionado
         setIsModalAgendamentoOpen(true);
     };
 
     const closeModalAgendamento = () => {
         setIsModalAgendamentoOpen(false);
+        setSelectedSchedule(null); // Limpa o agendamento selecionado ao fechar o modal
     };
 
     const openConfirmarCancelarModal = () => {
         setIsConfirmarCancelarModalOpen(true);
+
     };
 
     const closeConfirmarCancelarModal = () => {
@@ -92,9 +94,9 @@ export function Agendamento() {
                 
                 {schedules.map((agendamento) => (
                     <button
-                        key={agendamento.id} // Adicione um identificador único
+                        key={agendamento.id}
                         className="flex bg-customGray-100 border-l-4 border-blue-500 w-80 md:w-96 h-28 rounded-xl px-7 py-6 gap-3 shadow-navbar transform hover:translate-y-[-5px] ease-in-out duration-300"
-                        onClick={openModalAgendamento}
+                        onClick={() => openModalAgendamento(agendamento)} // Passa o agendamento selecionado
                     >
                         <div className="flex flex-col justify-start text-center gap-4 font-bold">
                             <span>{new Date(agendamento.dateTime).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}</span>
@@ -103,7 +105,7 @@ export function Agendamento() {
                         <div className="border-l border-customGray-400 h-full"></div>
                         <div className="flex flex-col justify-start items-start font-bold gap-4">
                             <span className="text-customBlack">{agendamento.service}</span>
-                            <span className="text-customGray">Qualquer disponível</span>
+                            <span className="text-customGray">{agendamento.barberName}</span>
                             <span className="text-blue-500">AGENDADO</span> 
                         </div>
                     </button>
@@ -112,10 +114,11 @@ export function Agendamento() {
 
             <Navbar />
 
-            {isModalAgendamentoOpen && (
+            {isModalAgendamentoOpen && selectedSchedule && (
                 <CancelarAgendamentoModal
                     closeModalAgendamento={closeModalAgendamento}
                     openConfirmarCancelarModal={openConfirmarCancelarModal}
+                    schedule={selectedSchedule} // Passa o agendamento selecionado para o modal
                 />
             )}
 
@@ -123,11 +126,15 @@ export function Agendamento() {
                 <ConfirmarCancelarAgendamentoModal
                     closeModalAgendamento={closeConfirmarCancelarModal}
                     confirmarAgendamento={closeAllModalsAndOpenReagendar}
+                     agendamentoId={selectedSchedule?.id}
+                     schedule={selectedSchedule}
                 />
             )}
 
-            {isReagendarModalOpen && (
-                <ReagendarModal closeModal={() => setIsReagendarModalOpen(false)} />
+            {isReagendarModalOpen && ( 
+                <ReagendarModal closeModal={() => setIsReagendarModalOpen(false)}    
+                schedule={selectedSchedule}
+                />
             )}
         </div>
     );

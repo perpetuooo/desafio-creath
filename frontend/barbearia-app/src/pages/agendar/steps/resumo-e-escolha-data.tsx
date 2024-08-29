@@ -44,14 +44,15 @@ export function ResumoEEscolhaData() {
     const suggestedDates = generateSuggestedDates();
 
     const handleSelectDateTime = (date: string, time: string) => {
-        const [year, month, day] = date.split('-').map(Number);
-        const selectedDate = new Date(year, month-1, day); 
-        if (isNaN(selectedDate.getTime())) {
-            console.error('Data inválida:', date);
-            return;
-        }  
-        const [hours, minutes] = time.split(':').map(Number);
-        const selectedDateTime = setHours(setMinutes(selectedDate, minutes), hours);
+    new Date(date)
+    const [year, month, day] = date.split('-').map(Number);
+    const selectedDate = new Date(year, month - 1, day);
+    if (isNaN(selectedDate.getTime())) {
+        console.error('Data inválida:', date);
+        return;
+    }
+    const [hours, minutes] = time.split(':').map(Number);
+    const selectedDateTime = setHours(setMinutes(selectedDate, minutes), hours);
         
         setSelectedDateTime(selectedDateTime);
         console.log("Data passada do resumo"+ selectedDateTime);

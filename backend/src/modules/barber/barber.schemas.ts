@@ -28,6 +28,7 @@ export const updateScheduleAdminSchema = z.object({
     userId: z.string().optional(),
     barberId: z.string().optional(),
     serviceId: z.string().optional(),
+    barberName: z.string().optional(),
 }).optional()
 
 export type AddServiceInput = z.infer<typeof addServiceSchema>

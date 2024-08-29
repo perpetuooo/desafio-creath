@@ -20,6 +20,7 @@ model User {
   password  String
   email     String?
   schedules Schedule[]
+  birthDate DateTime?
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
 }
@@ -39,6 +40,7 @@ model Schedule {
   dateTime     DateTime
   userId       String
   barberId     String
+  barberName   String?
   service      String
   serviceValue String
   barber       Barber   @relation(fields: [barberId], references: [id])
