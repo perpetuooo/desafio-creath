@@ -7,7 +7,6 @@
         "**/.DS_Store": true,
         "**/Thumbs.db": true,
         "**/__pycache__": true,
-        "**/.md": false,
-        ".vscode": true
+        "**/.md": true
     }
 }

@@ -59,7 +59,7 @@ export function MinhasInformacoes() {
                     email: formattedData.email,
                     birthDate: formattedData.birthDate
                 });
-                // Opcional: Força o refresh da página
+
                 window.location.reload();
             }
         } catch (error) {

@@ -21,16 +21,17 @@ export function Pedido() {
     useEffect(() => {
         validateStep();
         
-        // Adiciona log para verificar se agendamentos estão carregados
-        console.log('Esse vem do Pedido:', agendamentos);
-
-        let totalSum = 0;
-        agendamentos.forEach(agendamento => {
-            if (agendamento.service?.value) {
-                totalSum += parseFloat(agendamento.service.value.replace('R$ ', '').replace(',', '.'));
-            }
-        });
-        setTotal(totalSum);
+        if (agendamentos.length > 0) {
+            console.log('Esse vem do Pedido:', agendamentos);
+    
+            let totalSum = 0;
+            agendamentos.forEach(agendamento => {
+                if (agendamento.service?.value) {
+                    totalSum += parseFloat(agendamento.service.value.replace('R$ ', '').replace(',', '.'));
+                }
+            });
+            setTotal(totalSum);
+        }
     }, [agendamentos, validateStep]);
 
 
@@ -63,10 +64,13 @@ export function Pedido() {
             serviceValue: agendamento.service.value,
             barberName: agendamento.barber.name
         }));
+
+        console.log(transformedAgendamentos)
     
         try {
             // Enviar o array diretamente
             const response = await api.post('api/user/create', transformedAgendamentos);
+            console.log(response)
             if (response.status === 201) {
                 setAgendamentos([]);
                 setIsModalOpen(true);
@@ -85,17 +89,17 @@ export function Pedido() {
                 />
                 <span className="text-zinc-50 md:text-lg">Pedido</span>
             </div>
-
+    
             {isLoggedIn ? (
                 <div className="flex flex-col gap-8 px-8 mt-8 items-center flex-grow">
                     <div className="flex flex-col gap-8 items-center w-full max-w-md space-y-3">
                         {agendamentos.length > 0 ? (
                             agendamentos.map((Agendamentos, index) => {
                                 const agendamentoDateTime = new Date(Agendamentos.dateTime);
-                                const formattedMonth = agendamentoDateTime ? format(Agendamentos.dateTime, 'MMM'): '';
-                                const formattedDay = agendamentoDateTime ? format(Agendamentos.dateTime, 'dd'): '';
-                                const formattedTime = agendamentoDateTime ? format(Agendamentos.dateTime, 'HH:mm'): '';
-
+                                const formattedMonth = agendamentoDateTime ? format(Agendamentos.dateTime, 'MMM') : '';
+                                const formattedDay = agendamentoDateTime ? format(Agendamentos.dateTime, 'dd') : '';
+                                const formattedTime = agendamentoDateTime ? format(Agendamentos.dateTime, 'HH:mm') : '';
+    
                                 return (
                                     <div key={index} className="flex bg-customGray-100 w-full md:w-96 h-28 rounded-xl px-7 py-6 gap-3 shadow-navbar">
                                         <div className="flex flex-col justify-start text-center gap-4 font-bold">
@@ -121,7 +125,7 @@ export function Pedido() {
                         ) : (
                             <p>Nenhum agendamento encontrado.</p>
                         )}
-
+    
                         <button
                             className="text-customGray-400 bg-transparent border border-customGray-400 px-4 py-2 rounded-md flex items-center gap-2 md:hover:bg-customGray-400 md:hover:text-customGray-100 md:hover:border-black transform ease-in-out duration-300"
                             onClick={handleAddAgendamentos}
@@ -129,7 +133,7 @@ export function Pedido() {
                             <Plus className="size-5" />
                             ADICIONAR OUTRO
                         </button>
-
+    
                         <div className="flex flex-col gap-4 w-full">
                             <span className="font-bold text-customBlack">Formas de Pagamento</span>
                             <div className="flex items-center gap-2">
@@ -143,7 +147,7 @@ export function Pedido() {
                             <button className="text-blue-500 md:hover:text-blue-700 font-bold mr-auto">Adicionar observação</button>
                         </div>
                     </div>
-
+    
                     <div className="mt-auto w-full flex justify-center">
                         <button
                             className="text-zinc-50 bg-customGray-400 px-4 py-2 rounded-md flex items-center justify-center transform hover:translate-y-[-5px] ease-in-out duration-300 w-full h-14 md:w-80 shadow-navbar"
@@ -156,12 +160,12 @@ export function Pedido() {
             ) : (
                 <div className="flex flex-col gap-8 px-4 mt-8 items-center flex-grow">
                     <div className="flex flex-col gap-8 items-center w-full max-w-md space-y-3">
-                    {agendamentos.length > 0 ? (
+                        {agendamentos.length > 0 ? (
                             agendamentos.map((Agendamentos, index) => {
                                 const formattedMonth = Agendamentos.dateTime ? format(Agendamentos.dateTime, 'MMM', { locale: ptBR }) : '';
                                 const formattedDay = Agendamentos.dateTime ? format(Agendamentos.dateTime, 'dd', { locale: ptBR }) : '';
                                 const formattedTime = Agendamentos.dateTime ? format(Agendamentos.dateTime, 'HH:mm', { locale: ptBR }) : '';
-
+    
                                 return (
                                     <div key={index} className="flex bg-customGray-100 w-full md:w-96 h-28 rounded-xl px-7 py-6 gap-3 shadow-navbar">
                                         <div className="flex flex-col justify-start text-center gap-4 font-bold">
@@ -188,14 +192,14 @@ export function Pedido() {
                             <p>Nenhum agendamento encontrado.</p>
                         )}
                     </div>
-
+    
                     <button
                         className="text-customGray-400 bg-transparent border border-customGray-400 px-4 py-2 rounded-md flex items-center gap-2 md:hover:bg-customGray-400 md:hover:text-customGray-100 md:hover:border-black transform ease-in-out duration-300"
                         onClick={handleAddAgendamentos}>
                         <Plus className="size-5" />
                         ADICIONAR OUTRO
                     </button>
-
+    
                     <button
                         className=" mt-auto  text-customGray-100 bg-customGray-400 px-2 py-4 rounded-md flex items-center justify-center transform hover:translate-y-[-5px] ease-in-out duration-300 gap-2 w-full h-14 md:w-80 shadow-navbar"
                         onClick={() => navigate('/cadastro')}
@@ -205,9 +209,9 @@ export function Pedido() {
                     </button>
                 </div>
             )}
-
+    
             <Navbar />
-
+    
             {isModalOpen && <PedidoConcluidoModal closeModalPedidoConcluido={closeModalPedidoConcluido} />}
         </div>
     );

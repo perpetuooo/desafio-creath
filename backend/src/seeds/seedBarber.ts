@@ -1,5 +1,6 @@
 import prisma from "../utils/prisma";
 
+// Criação de barbeiros genéricos.
 async function seedBarbers() {
     const barbers = [
         { name: 'Alexandre Soares', phone: '999212', password: 'senha1' },

@@ -23,9 +23,9 @@ app.register(cookies, {
   secret: process.env.COOKIES_SECRET || "COOKIESSECRET",
 } as FastifyCookieOptions)
 
+// Lógica de autenticação do usuário: Verifica se quem acessa a rota está logado.
 app.decorate('authenticator', async (req: FastifyRequest, rep: FastifyReply) => {
   const token = req.cookies.access_token;
-  console.log('token back: ' + token)
   if (!token) {
     return rep.status(401).send({ error: "Autenticação falhou" });
   }
@@ -38,6 +38,7 @@ app.decorate('authenticator', async (req: FastifyRequest, rep: FastifyReply) => 
   }
 });
 
+// Lógica de autenticação do barbeiro: Verifica se quem acessa a rota é um barbeiro.
 app.decorate('isBarber', async (req: FastifyRequest, rep: FastifyReply) => {
   if (!req.baber) {
     return rep.status(403).send({ error: "Acesso negado." });
@@ -56,9 +57,9 @@ async function main() {
   app.register(barberRoutes, { prefix: "api/barber" });
   app.register(userRoutes, { prefix: "api/user" });
 
-  app.get('/', (req: FastifyRequest, rep: FastifyReply) => {
-    rep.send({ message: "Barba, Cabelo e Bigode." });
-  });
+  // app.get('/', (req: FastifyRequest, rep: FastifyReply) => {
+  //   rep.send({ message: "Barba, Cabelo e Bigode." });
+  // });
 
   const port = process.env.PORT ? parseInt(process.env.PORT) : 8081;
   const host = process.env.HOST || "0.0.0.0";
@@ -79,6 +80,7 @@ async function main() {
 
 main();
 
+// Espera o banco de dados terminar suas ações para fechar o servidor.
 process.on("SIGINT", async () => {
   await prisma.$disconnect();
   process.exit();

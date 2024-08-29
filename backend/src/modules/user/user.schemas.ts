@@ -1,5 +1,6 @@
 import { z } from "zod";
 
+
 // Esquema de validação para criação de um novo usuário
 export const CreateUserSchema = z.object({
   name: z.string().optional(),
@@ -27,6 +28,7 @@ export const CreateUserSchema = z.object({
     .optional(),
 });
 
+
 // Esquema de validação para realizar o login de um usuário.
 export const LoginUserSchema = z.object({
   phone: z
@@ -51,8 +53,8 @@ export const UpdateUserSchema = z.object({
   birthDate: z.string().optional(),
 }).optional();
 
+
 // Esquema de validação para um usuário existente.
-// Deixei o nome e email para validação, porém acho que seria melhor colocar só o email ou o nome para mais agilidade.
 export const UserSchema = z.object({
   name: z.string().min(1, "Digite seu nome").optional(),
   phone: z
@@ -75,6 +77,8 @@ export const PhoneQuerySchema = z.object({
   phone: z.string().min(10, "Telefone é obrigatório")
 });
 
+
+// Esquema de validação para criar um agendamento.
 export const CreateScheduleSchema = z.object({
   // dateTime é baseada no padrão ISO 8601.
   dateTime: z
@@ -109,6 +113,7 @@ export const CreateScheduleSchema = z.object({
   })
 })
 
+// Esquema de validação para atualizar um agendamento.
 export const UpdateScheduleSchema = z.object({
   id: z.number(),
   dateTime: z.string().datetime().optional(),
@@ -118,9 +123,12 @@ export const UpdateScheduleSchema = z.object({
   barberName: z.string().optional(),
 })
 
+
+// Esquema de validação para deletar um agendamento
 export const DeleteScheduleSchema = z.object({
   id: z.number().int()
 });
+
 // Tipos derivados dos esquemas
 export type CreateUserType = z.infer<typeof CreateUserSchema>;
 export type LoginUserType = z.infer<typeof LoginUserSchema>;

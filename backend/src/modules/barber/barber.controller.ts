@@ -5,7 +5,7 @@ import { CreateUserType } from "../user/user.schemas";
 import { hashPassword } from "../user/user.utils";
 
 export async function createBarber (  req: FastifyRequest<{ Body: CreateUserType }>, rep: FastifyReply) {
-    const { name, phone, password } = req.body
+    const { password, ...data } = req.body
   
     try {
       const hashedPassword = await hashPassword(password);
@@ -14,9 +14,8 @@ export async function createBarber (  req: FastifyRequest<{ Body: CreateUserType
   
       await prisma.barber.create({
         data: {
-          name: name,
-          phone: phone,
           password: hashedPassword,
+          ...data
         },
       });
   
@@ -142,13 +141,4 @@ export async function deleteScheduleAsAdmin (req: FastifyRequest, rep: FastifyRe
 
     
 
-}
-
-export async function getBarbers(req: FastifyRequest, rep: FastifyReply) {
-    try {
-        const barbers = await prisma.barber.findMany(); 
-        return rep.code(200).send(barbers);
-    } catch (error) {
-        return rep.code(500).send({ error: 'Erro ao buscar barbeiros.' });
-    }
 }

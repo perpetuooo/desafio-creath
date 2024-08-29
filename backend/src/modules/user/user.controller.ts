@@ -3,75 +3,7 @@ import prisma from "../../utils/prisma";
 import { CreateScheduleType, CreateUserType, DeleteScheduleType, LoginUserType, UpdateScheduleType, UpdateUserType } from "./user.schemas";
 import { comparePassword, hashPassword } from "./user.utils";
 
-// export async function getAllUsers(req: FastifyRequest, rep: FastifyReply) {
-//   try {
-
-
-//     if (phone) {
-//       const users = await prisma.user.findMany({
-//         select: {
-//           id: true,
-//           name: true,
-//           phone: true,
-//           email: true,
-//           schedules: true,
-//           createdAt: true,
-//           updatedAt: true,
-//         },
-//         where: {
-//           phone: {
-//             contains: phone.toLowerCase(),
-//           }
-//         }
-//       })
-
-//       if (!users) {
-//         return rep.code(404).send({ error: "Usuário não encontrado..." })
-//       }
-
-//       return rep.code(200).send(users)
-
-//     } else {
-//       const users = await prisma.user.findMany({
-//         select: {
-//           id: true,
-//           name: true,
-//           phone: true,
-//           email: true,
-//           schedules: true,
-//           createdAt: true,
-//           updatedAt: true,
-//         }
-//       })
-
-//       if (!users) {
-//         return rep.code(404).send({ error: "Usuário não encontrado..." })
-//       }
-
-//       return rep.code(200).send(users)
-//     }
-//   } catch (err) {
-//     console.error(err)
-//     return rep.code(500).send({ message: "Erro ao encontrar usuários." })
-//   }
-// }
-
-export async function deleteAllUsers(req: FastifyRequest, rep: FastifyReply) {
-  try {
-    const users = await prisma.user.deleteMany()
-
-    if(!users) {
-      return rep.code(404).send({ error: "Nenhum usuário encontrado." })
-    }
-
-    return rep.code(200).send({ message: "Usuários deletados com sucesso!" })
-
-  } catch(error) {
-    console.error(error)
-    return rep.code(500).send({ error: "Erro ao deletar todos os usuários." })
-  }
-}
-
+// Lógica de cadastro e login.
 export async function registerOrLoginUser(
   req: FastifyRequest<{ Body: CreateUserType }>,
   rep: FastifyReply
@@ -80,10 +12,9 @@ export async function registerOrLoginUser(
 
   try {
     let user = await prisma.user.findUnique({ where: { phone } });
-
+    
+    // Caso não exista um usuário com o telefone inserido, faz o cadastro do mesmo.
     if (!user) {
-      console.log("user not found, fazendo cadastro...")
-      
       const hashedPassword = await hashPassword(password);
 
       user = await prisma.user.create({
@@ -93,8 +24,7 @@ export async function registerOrLoginUser(
         },
       });
     } else {
-      console.log("user found, fazendo login")
-     
+      // Caso exista o usuário, compara as hashs de senha e gera o access token.
       const correctPassword = await comparePassword(password, user.password);
 
       if (!correctPassword) {
@@ -102,7 +32,6 @@ export async function registerOrLoginUser(
       }
     }
 
-   console.log("criando payload do user: " + user.name)
     const payload = {
       id: user.id,
       phone: user.phone,
@@ -110,7 +39,6 @@ export async function registerOrLoginUser(
     };
 
     const token = req.jwt.sign(payload);
-    console.log("user.controller token: " + token)
     rep.setCookie("access_token", token, {
       path: "/",
       httpOnly: true,
@@ -127,6 +55,20 @@ export async function registerOrLoginUser(
   }
 }
 
+// Lógica de logout.
+export async function logoutUser(req: FastifyRequest, rep: FastifyReply) {
+  try {
+    rep.clearCookie("access_token"); 
+
+    return rep.code(200).send({ message: "Usuário deslogado com sucesso!" })
+
+  } catch(error) {
+    console.error(error)
+    return rep.code(500).send({ errror: "Erro ao deslogar usuário." })
+  }
+} 
+
+// Retorna um usuário pelo ID.
 export async function getUser(req: FastifyRequest, rep: FastifyReply) {
   try {
    
@@ -147,6 +89,7 @@ export async function getUser(req: FastifyRequest, rep: FastifyReply) {
   }
 }
 
+// Retorna um usuário pelo telefone.
 export async function getUserByPhone(req: FastifyRequest, rep: FastifyReply) {
   try {
     const { phone } = req.query as { phone?: string };
@@ -176,6 +119,7 @@ export async function getUserByPhone(req: FastifyRequest, rep: FastifyReply) {
   }
 }
 
+// Retorna todos os barbeiros.
 export async function getBarbers(req: FastifyRequest, rep: FastifyReply) {
   try {
     const { name } = req.query as { name?: string }
@@ -218,114 +162,7 @@ export async function getBarbers(req: FastifyRequest, rep: FastifyReply) {
   }
 }
 
-export async function createUser(
-  req: FastifyRequest<{ Body: CreateUserType }>,
-  rep: FastifyReply
-) {
-  const { name, phone, password } = req.body
-
-  try {
-    const hashedPassword = await hashPassword(password);
-    
-    // console.log(hashedPassword)
-
-    await prisma.user.create({
-      data: {
-        name: name,
-        phone: phone,
-        password: hashedPassword,
-      },
-    });
-
-    return rep.code(201).send({ message: "Usuário registrado com sucesso!" });
-
-  } catch (error) {
-    return rep.code(500).send({ error: "Erro ao criar o usuário." });
-  }
-}
-
-export async function loginUser(
-  req: FastifyRequest<{ Body: LoginUserType }>,
-  rep: FastifyReply
-) {
-  const { phone, password } = req.body
-
-  try {
-    const user = await prisma.user.findUnique({ where: { phone } });
-    
-    // Tenta fazer login como um usuário.
-    if (user) {
-      const correctPassword = await comparePassword(password, user.password);
-
-      if (!correctPassword) {
-        return rep.code(401).send({ error: "Email ou senha inválidos." });
-      }
-
-      const payload = {
-        id: user.id,
-        phone: user.phone,
-        name: user.name,
-      };
-
-      const token = req.jwt.sign(payload);
-      rep.setCookie("access_token", token, {
-        path: "/",
-        httpOnly: true,
-        secure: true,
-        expires: new Date(Date.now() + 1 * 60 * 60 * 1000),
-      });
-
-      console.log(token)
-      return { accessToken: token };
-      
-    } else {
-      // Se não encontrar o usuário, tenta como um barbeiro.
-      const barber = await prisma.barber.findUnique({ where: { phone } });
-
-      if (barber) {
-        const correctPassword = await comparePassword(password, barber.password);
-
-      if (!correctPassword) {
-        return rep.code(401).send({ error: "Email ou senha inválidos." });
-      }
-      
-      const payload = {
-        id: barber.id,
-        phone: barber.phone,
-        name: barber.name,
-      };
-
-      const token = req.jwt.sign(payload);
-      rep.setCookie("access_token", token, {
-        path: "/",
-        httpOnly: true,
-        secure: true,
-        expires: new Date(Date.now() + 2 * 60 * 60 * 1000),
-      });
-
-      return { accessToken: token };
-
-      } else {
-        return rep.code(401).send({ error: "Email ou senha inválidos." });
-      } 
-    }
-  } catch (error) {
-    return rep.code(500).send({ error: "Erro ao realizar o login." });
-  }
-}
-
-export async function logoutUser(req: FastifyRequest, rep: FastifyReply) {
-  try {
-    rep.clearCookie("access_token"); 
-
-    return rep.code(200).send({ message: "Usuário deslogado com sucesso!" })
-
-  } catch(error) {
-    console.error(error)
-    return rep.code(500).send({ errror: "Erro ao deslogar usuário." })
-  }
-} 
-
+// Atualiza o usuário baseado nas informações recebidas.
 export async function updateUser(
   req: FastifyRequest<{ Body: UpdateUserType }>,
   rep: FastifyReply
@@ -339,6 +176,8 @@ export async function updateUser(
       ...data,
       ...(data.birthDate && { birthDate: new Date(data.birthDate) }),
     };
+
+    // console.log(updatedData)
     
     const updatedUser = await prisma.user.update({
       where: { id },
@@ -356,6 +195,7 @@ export async function updateUser(
   }
 }
 
+// Deleta o usuário baseado no seu ID.
 export async function deleteUser(req: FastifyRequest, rep: FastifyReply) {
   try {
     const id = req.user.id
@@ -376,7 +216,7 @@ export async function deleteUser(req: FastifyRequest, rep: FastifyReply) {
   }
 }
 
-
+// Lógica da criação de agendamentos
 export async function createSchedule(req: FastifyRequest<{ Body: Array<CreateScheduleType> }>, rep: FastifyReply) {
   const schedules = req.body;
 
@@ -397,7 +237,7 @@ export async function createSchedule(req: FastifyRequest<{ Body: Array<CreateSch
         })
       )
     );
-
+ 
     return rep.code(201).send({ message: "Agendamentos criados com sucesso!" });
   } catch (error) {
     console.error(error);
@@ -405,7 +245,7 @@ export async function createSchedule(req: FastifyRequest<{ Body: Array<CreateSch
   }
 }
 
-
+// Retorna todos os agendamentos do usuário logado.
 export async function getUserSchedules(req: FastifyRequest, rep: FastifyReply) {
   try {
     const userId = req.user.id
@@ -428,6 +268,7 @@ export async function getUserSchedules(req: FastifyRequest, rep: FastifyReply) {
   }
 }
 
+// Lógica de atualizar os agendamentos do usuário.
 export async function updateSchedule(req: FastifyRequest<{Body: UpdateScheduleType}>, rep: FastifyReply) {
   try {
     const { id, ...data } = req.body
@@ -458,6 +299,7 @@ export async function updateSchedule(req: FastifyRequest<{Body: UpdateScheduleTy
   }
 }
 
+// Lógica de deletar os agendamentos do usuário.
 export async function deleteSchedule(req: FastifyRequest<{Body: DeleteScheduleType}>, rep: FastifyReply) {
   try {
     const { id } = req.body
@@ -485,5 +327,155 @@ export async function deleteSchedule(req: FastifyRequest<{Body: DeleteScheduleTy
   }
 }
 
+// -- HANDLERS PARA TESTES NO POSTMAN --
 
+export async function getAllUsers(req: FastifyRequest, rep: FastifyReply) {
+  try {
+      const users = await prisma.user.findMany({
+        select: {
+          id: true,
+          name: true,
+          phone: true,
+          email: true,
+          schedules: true,
+          createdAt: true,
+          updatedAt: true,
+        }
+      })
 
+      if (!users) {
+        return rep.code(404).send({ error: "Usuário não encontrado..." })
+      }
+
+      return rep.code(200).send(users)
+
+    } catch (err) {
+    console.error(err)
+    return rep.code(500).send({ message: "Erro ao encontrar usuários." })
+  }
+}
+
+export async function deleteAllUsers(req: FastifyRequest, rep: FastifyReply) {
+  try {
+    const users = await prisma.user.deleteMany()
+
+    if(!users) {
+      return rep.code(404).send({ error: "Nenhum usuário encontrado." })
+    }
+
+    return rep.code(200).send({ message: "Usuários deletados com sucesso!" })
+
+  } catch(error) {
+    console.error(error)
+    return rep.code(500).send({ error: "Erro ao deletar todos os usuários." })
+  }
+}
+
+export async function deleteAllSchedules(req: FastifyRequest, rep: FastifyReply) {
+  try {
+    const schedules = await prisma.schedule.deleteMany()
+
+    if(!schedules) {
+      return rep.code(404).send({ error: "Nenhum agendamento encontrado." })
+    }
+
+    return rep.code(200).send({ message: "Agendamentos deletados com sucesso!" })
+
+  } catch(error) {
+    console.error(error)
+    return rep.code(500).send({ error: "Erro ao deletar todos os agendamentos."})
+  }
+}
+
+// export async function createUser(
+//   req: FastifyRequest<{ Body: CreateUserType }>,
+//   rep: FastifyReply
+// ) {
+//   const { name, phone, password } = req.body
+
+//   try {
+//     const hashedPassword = await hashPassword(password);
+
+//     await prisma.user.create({
+//       data: {
+//         name: name,
+//         phone: phone,
+//         password: hashedPassword,
+//       },
+//     });
+
+//     return rep.code(201).send({ message: "Usuário registrado com sucesso!" });
+
+//   } catch (error) {
+//     return rep.code(500).send({ error: "Erro ao criar o usuário." });
+//   }
+// }
+
+// export async function loginUser(
+//   req: FastifyRequest<{ Body: LoginUserType }>,
+//   rep: FastifyReply
+// ) {
+//   const { phone, password } = req.body
+
+//   try {
+//     const user = await prisma.user.findUnique({ where: { phone } });
+    
+//     // Tenta fazer login como um usuário.
+//     if (user) {
+//       const correctPassword = await comparePassword(password, user.password);
+
+//       if (!correctPassword) {
+//         return rep.code(401).send({ error: "Email ou senha inválidos." });
+//       }
+
+//       const payload = {
+//         id: user.id,
+//         phone: user.phone,
+//         name: user.name,
+//       };
+
+//       const token = req.jwt.sign(payload);
+//       rep.setCookie("access_token", token, {
+//         path: "/",
+//         httpOnly: true,
+//         secure: true,
+//         expires: new Date(Date.now() + 1 * 60 * 60 * 1000),
+//       });
+
+//       return { accessToken: token };
+      
+//     } else {
+//       // Se não encontrar o usuário, tenta como um barbeiro.
+//       const barber = await prisma.barber.findUnique({ where: { phone } });
+
+//       if (barber) {
+//         const correctPassword = await comparePassword(password, barber.password);
+
+//       if (!correctPassword) {
+//         return rep.code(401).send({ error: "Email ou senha inválidos." });
+//       }
+      
+//       const payload = {
+//         id: barber.id,
+//         phone: barber.phone,
+//         name: barber.name,
+//       };
+
+//       const token = req.jwt.sign(payload);
+//       rep.setCookie("access_token", token, {
+//         path: "/",
+//         httpOnly: true,
+//         secure: true,
+//         expires: new Date(Date.now() + 2 * 60 * 60 * 1000),
+//       });
+
+//       return { accessToken: token };
+
+//       } else {
+//         return rep.code(401).send({ error: "Email ou senha inválidos." });
+//       } 
+//     }
+//   } catch (error) {
+//     return rep.code(500).send({ error: "Erro ao realizar o login." });
+//   }
+// }
