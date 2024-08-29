@@ -2,10 +2,22 @@ import { useNavigate } from "react-router-dom";
 import logoWhite from '../../assets/whiteLogo.svg';
 import { Clock, CalendarRange } from 'lucide-react';
 import { Navbar } from '../../components/navbar/navbar';
+import { useAuth } from '../../context/authcontext'; 
+import { useEffect } from "react";
 
 export function HomePage() {
+    const {checkAuth} = useAuth();
     const navigate = useNavigate(); 
 
+    useEffect(() => {
+    const verifyAuth = async () => {
+      await checkAuth();
+    };
+
+    verifyAuth();
+  }, [checkAuth]);
+
+    
     return (
         <div className="flex flex-col min-h-screen pb-16 md:pb-0">
             <div className="flex flex-col flex-grow items-center justify-center space-y-12">

@@ -1,6 +1,5 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { api } from '../lib/axios';
-import Cookies from 'js-cookie';
 
 interface AuthContextProps {
   isLoggedIn: boolean;
@@ -23,19 +22,13 @@ export const useAuth = () => {
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState<{ phone: string } | null>(null);
+  
   const checkAuth = async () => {
     try {
-      const token = Cookies.get('access_token');
-      console.log(token);
-      if (token) {
-        const response = await api.get('/api/user/getUser');
-        if (response.status === 200) {
-          setIsLoggedIn(true);
-          setUser(response.data[0]);
-        } else {
-          setIsLoggedIn(false);
-          setUser(null);
-        }
+      const response = await api.get('/api/user/getUser');
+      if (response.status === 200) {
+        setIsLoggedIn(true);
+        setUser(response.data[0]);
       } else {
         setIsLoggedIn(false);
         setUser(null);
@@ -48,14 +41,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const login = async (phone: string, password: string) => {
     try {
+      // Envia a requisição de login ao backend
       const response = await api.post('/api/user/register-or-login', { phone, password });
       console.log('Login response:', response.data);
+  
+      // A validação do login é feita pelo backend
       if (response.status === 200) {
-        const token = response.data.accessToken;
-        console.log("token front login " + token);
-        Cookies.set('access_token', token, { expires: 7 });
+        // Supondo que o backend define o cookie httpOnly
+        // Atualiza o estado de autenticação no frontend
         setIsLoggedIn(true);
         setUser({ phone });
+      } else {
+        // Caso contrário, ajuste o estado de autenticação
+        setIsLoggedIn(false);
+        setUser(null);
       }
     } catch (error) {
       console.error('Erro ao logar:', error);
@@ -63,17 +62,21 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setUser(null);
     }
   };
+  
 
   const logout = async () => {
     try {
+      // Envia a requisição de logout ao backend
       await api.delete('/api/user/logout');
-      Cookies.remove('access_token');
+  
+      // Atualiza o estado de autenticação no frontend
       setIsLoggedIn(false);
       setUser(null);
     } catch (error) {
       console.error('Erro ao deslogar:', error);
     }
   };
+  
 
   useEffect(() => {
     checkAuth();
