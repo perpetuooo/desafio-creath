@@ -48,7 +48,7 @@ export const UpdateUserSchema = z.object({
 // Esquema de validação para um usuário existente.
 // Deixei o nome e email para validação, porém acho que seria melhor colocar só o email ou o nome para mais agilidade.
 export const UserSchema = z.object({
-  name: z.string().min(1, "Digite seu nome"),
+  name: z.string().min(1, "Digite seu nome").optional(),
   phone: z
     .string({
       required_error: "Digite seu telefone",
@@ -58,6 +58,9 @@ export const UserSchema = z.object({
     required_error: "Digite sua senha",
     invalid_type_error: "Senha inválida",
   }),
+  email: z.string({
+    invalid_type_error: "Email inválido",
+  }).optional(),
   createdAt: z.string(),
   updatedAt: z.string(),
 });
@@ -84,6 +87,11 @@ export const CreateScheduleSchema = z.object({
     invalid_type_error: "ID do barbeiro inválido."
   }).uuid(),
   service: z
+  .string({
+    required_error: "Escolha um serviço.",
+    invalid_type_error: "Serviço inválido."
+  }),
+  serviceValue: z
   .string({
     required_error: "Escolha um serviço.",
     invalid_type_error: "Serviço inválido."

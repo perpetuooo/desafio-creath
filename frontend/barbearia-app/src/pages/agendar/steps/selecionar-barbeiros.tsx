@@ -27,7 +27,6 @@ export function SelecionarBarbeiro() {
     const getBarbeiros = async () => {
         console.log('Buscando barbeiros...');
         try {
-           
             const response = await api.get<Barbeiro[]>('/api/user/barbers'); 
             setBarbeiros(response.data);
         } catch (error) {
@@ -36,7 +35,7 @@ export function SelecionarBarbeiro() {
     };
 
     const handleSelectBarber = (barbeiro: Barbeiro) => {
-        setSelectedBarber(barbeiro.name); 
+        setSelectedBarber(barbeiro); 
         console.log(barbeiro)
         navigate('/resumo');
     };

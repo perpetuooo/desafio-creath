@@ -76,7 +76,7 @@ export async function registerOrLoginUser(
   req: FastifyRequest<{ Body: CreateUserType }>,
   rep: FastifyReply
 ) {
-  const { name, phone, password } = req.body;
+  const {phone, password } = req.body;
 
   try {
     let user = await prisma.user.findUnique({ where: { phone } });
@@ -88,7 +88,6 @@ export async function registerOrLoginUser(
 
       user = await prisma.user.create({
         data: {
-          name,
           phone,
           password: hashedPassword,
         },
@@ -128,9 +127,27 @@ export async function registerOrLoginUser(
   }
 }
 
-
-
 export async function getUser(req: FastifyRequest, rep: FastifyReply) {
+  try {
+   
+    const userId = req.user.id;
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId }
+    });
+
+    if (!user) {
+      return rep.code(404).send({ error: "Usuário não encontrado." });
+    }
+
+    return rep.code(200).send(user);
+  } catch (error) {
+    console.error("Erro ao buscar usuário:", error);
+    return rep.code(500).send({ error: "Erro ao buscar usuário." });
+  }
+}
+
+export async function getUserByPhone(req: FastifyRequest, rep: FastifyReply) {
   try {
     const { phone } = req.query as { phone?: string };
 
@@ -161,13 +178,6 @@ export async function getUser(req: FastifyRequest, rep: FastifyReply) {
     return rep.code(500).send({ message: "Erro ao encontrar usuário." });
   }
 }
-
-
-export async function checkUserByPhone(phone: string) {
-  return await prisma.user.findUnique({ where: { phone } });
-}
-
-
 
 export async function getBarbers(req: FastifyRequest, rep: FastifyReply) {
   try {
@@ -363,27 +373,35 @@ export async function deleteUser(req: FastifyRequest, rep: FastifyReply) {
   }
 }
 
-export async function createSchedule(req: FastifyRequest<{Body: CreateScheduleType}>, rep: FastifyReply) {
 
-  // const services = ["BARBA", "CABELO", "BARBA + CABELO", "PROGRESSIVA", "BARBA + CABELO + PROGRESSIVA"]
+export async function createSchedule(req: FastifyRequest<{ Body: Array<CreateScheduleType> }>, rep: FastifyReply) {
+  const schedules = req.body;
+
+  // Verifique se o corpo da requisição é um array de agendamentos
+  if (!Array.isArray(schedules) || schedules.length === 0) {
+    return rep.code(400).send({ error: "Nenhum agendamento fornecido." });
+  }
 
   try {
-    const { ...data } = req.body
+    // Criar múltiplos agendamentos usando uma transação
+    await prisma.$transaction(
+      schedules.map(schedule =>
+        prisma.schedule.create({
+          data: {
+            userId: req.user.id,
+            ...schedule,
+          }
+        })
+      )
+    );
 
-    await prisma.schedule.create({
-      data: {
-        userId: req.user.id,
-        ...data,
-      }
-    })
-
-    return rep.code(201).send({ message: "Agendamento criado com sucesso!" })
-
-  } catch(error) {
-    console.error(error)
-    return rep.code(500).send({ error: "Erro ao criar o agendamento." })
+    return rep.code(201).send({ message: "Agendamentos criados com sucesso!" });
+  } catch (error) {
+    console.error(error);
+    return rep.code(500).send({ error: "Erro ao criar agendamentos." });
   }
 }
+
 
 export async function getUserSchedules(req: FastifyRequest, rep: FastifyReply) {
   try {

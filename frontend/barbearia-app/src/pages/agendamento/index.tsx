@@ -6,6 +6,16 @@ import { CancelarAgendamentoModal } from './cancelarAgendamentoModal';
 import { ConfirmarCancelarAgendamentoModal } from './confirmar-cancelarAgendamentoModal';
 import { ReagendarModal } from './reagendarModal';
 import { useAuth } from '../../context/authcontext'; 
+import { api } from '../../lib/axios';
+
+interface Schedules {
+    id: number
+    dateTime: string
+    barberId: string
+    service: string
+    serviceValue:string
+}
+
 
 export function Agendamento() {
     const navigate = useNavigate();
@@ -13,12 +23,30 @@ export function Agendamento() {
     const [isModalAgendamentoOpen, setIsModalAgendamentoOpen] = useState(false); 
     const [isConfirmarCancelarModalOpen, setIsConfirmarCancelarModalOpen] = useState(false);
     const [isReagendarModalOpen, setIsReagendarModalOpen] = useState(false);
+    const [schedules, setSchedules] = useState<Schedules[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
 
     useEffect(() => {
+        console.log(isLoggedIn)
         if (!isLoggedIn) {
             navigate('/cadastro');
+        } else {
+            // Função para buscar os agendamentos
+            const getSchedules = async () => {
+                try {
+                    const response = await api.get<Schedules[]>('/api/user/schedules')
+                    setSchedules(response.data);
+                } catch (err) {
+                    setError("Erro ao carregar agendamentos." +err);
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            getSchedules();
         }
-    }, [isLoggedIn, navigate]); 
+    }, [isLoggedIn, navigate]);
 
     const openModalAgendamento = () => {
         setIsModalAgendamentoOpen(true);
@@ -58,22 +86,28 @@ export function Agendamento() {
             <div className="flex flex-col gap-8 px-8 mt-8 items-center">
                 <span className="font-bold mr-auto md:mr-0">agosto, 2024</span>
                 
-                <button
-                    className="flex bg-customGray-100 border-l-4 border-blue-500 w-80 md:w-96 h-28 rounded-xl px-7 py-6 gap-3 shadow-navbar transform hover:translate-y-[-5px] ease-in-out duration-300"
-                    onClick={openModalAgendamento}
-                >
-                    <div className="flex flex-col justify-start text-center gap-4 font-bold">
-                        <span>ago.</span>
-                        <span>02</span>
-                        <span>11:00</span>
-                    </div>
-                    <div className="border-l border-customGray-400 h-full"></div>
-                    <div className="flex flex-col justify-start items-start font-bold gap-4">
-                        <span className="text-customBlack">Barba</span>
-                        <span className="text-customGray">Qualquer disponível</span>
-                        <span className="text-blue-500">AGENDADO</span> 
-                    </div>
-                </button>
+                {loading && <p>Carregando agendamentos...</p>}
+                {error && <p>{error}</p>}
+                {schedules.length === 0 && !loading && <p>Você não tem agendamentos.</p>}
+                
+                {schedules.map((agendamento) => (
+                    <button
+                        key={agendamento.id} // Adicione um identificador único
+                        className="flex bg-customGray-100 border-l-4 border-blue-500 w-80 md:w-96 h-28 rounded-xl px-7 py-6 gap-3 shadow-navbar transform hover:translate-y-[-5px] ease-in-out duration-300"
+                        onClick={openModalAgendamento}
+                    >
+                        <div className="flex flex-col justify-start text-center gap-4 font-bold">
+                            <span>{new Date(agendamento.dateTime).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}</span>
+                            <span>{new Date(agendamento.dateTime).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</span>
+                        </div>
+                        <div className="border-l border-customGray-400 h-full"></div>
+                        <div className="flex flex-col justify-start items-start font-bold gap-4">
+                            <span className="text-customBlack">{agendamento.service}</span>
+                            <span className="text-customGray">Qualquer disponível</span>
+                            <span className="text-blue-500">AGENDADO</span> 
+                        </div>
+                    </button>
+                ))}
             </div>
 
             <Navbar />

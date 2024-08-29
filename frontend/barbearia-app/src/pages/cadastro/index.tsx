@@ -1,34 +1,32 @@
-import {  useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useAuth } from '../../context/authcontext';
 import logoWhite from '../../assets/whiteLogo.svg';
 import { Navbar } from '../../components/navbar/navbar';
 import { SelectCountry } from '../../components/forms/select-country';
 import googleIcon from '../../assets/googleIcon.svg';
 import { useNavigate } from 'react-router-dom';
-//import Cookies from 'js-cookie';
 export function Cadastro() {
   const [phone, setPhone] = useState('');
   const { isLoggedIn, login } = useAuth();
   const navigate = useNavigate();
-  
-  // useEffect(() => {
-  //   const token = Cookies.get('acess_token');
-  //   if (token) {
-  //     console.log('Token exists, navigating away from /cadastro');
-  //     navigate('/');
-  //   }
-  // }, [navigate]);
-  
-  
+
+  useEffect(() => {
+    console.log(isLoggedIn)
+    if (isLoggedIn) {
+      navigate('/');
+    }
+  }, [isLoggedIn, navigate]);
+
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPhone(e.target.value);
   };
 
   const handleSubmit = async () => {
     try {
-      await login("pedro", phone, 'senha123');
+      await login(phone, '123456');
       console.log('Login bem-sucedido');
-  
+
       // Adicione uma verificação explícita aqui
       if (isLoggedIn) {
         navigate('/');
@@ -37,7 +35,7 @@ export function Cadastro() {
       console.error('Erro ao registrar ou fazer login:', error);
     }
   };
-  
+
 
   return (
     <div className="flex flex-col min-h-screen pb-20 md:pb-0 defaultFontStyles">

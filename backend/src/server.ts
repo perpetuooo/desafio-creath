@@ -10,10 +10,11 @@ import cookies, { FastifyCookieOptions } from "@fastify/cookie";
 
 const prisma = new PrismaClient();
 
-const app = Fastify({ logger: false }).withTypeProvider<ZodTypeProvider>();
+const app = Fastify({ logger: true }).withTypeProvider<ZodTypeProvider>();
 
 app.register(cors, {
-  origin: "*",
+  origin: 'http://localhost:5173', 
+  credentials: true, 
 });
 app.register(fjwt, {
   secret: process.env.FJWT_SECRET || "JWTSECRET",

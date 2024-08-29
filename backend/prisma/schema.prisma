@@ -35,11 +35,12 @@ model Barber {
 }
 
 model Schedule {
-  id       Int      @id @default(autoincrement())
-  dateTime DateTime
-  userId   String
-  barberId String
-  service  String
-  barber   Barber   @relation(fields: [barberId], references: [id])
-  user     User     @relation(fields: [userId], references: [id])
+  id           Int      @id @default(autoincrement())
+  dateTime     DateTime
+  userId       String
+  barberId     String
+  service      String
+  serviceValue String
+  barber       Barber   @relation(fields: [barberId], references: [id])
+  user         User     @relation(fields: [userId], references: [id])
 }

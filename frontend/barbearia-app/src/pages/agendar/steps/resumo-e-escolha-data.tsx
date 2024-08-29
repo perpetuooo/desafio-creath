@@ -85,7 +85,7 @@ export function ResumoEEscolhaData() {
                     </div>
                     <div className="flex items-center gap-2" title='Profissional Escolhido'>
                         <User className="text-customBlack size-7 mr-2" />
-                        <span className="text-customGray-400">{selectedBarber ? selectedBarber : 'Qualquer um'}</span>
+                        <span className="text-customGray-400">{selectedBarber?.name ? selectedBarber?.name :  'Qualquer um'}</span>
                         <button onClick={() => navigate('/agendar')} className="text-blue-500 ml-auto flex items-center gap-3 md:hover:text-blue-700" title='Clique para alterar o Agendamento'>
                             <ArrowLeftRight className='size-7' />
                             <span className="font-semibold">Alterar</span>

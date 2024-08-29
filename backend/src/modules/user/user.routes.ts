@@ -1,6 +1,7 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
-import { checkUserByPhone, createSchedule, createUser, deleteAllUsers, deleteSchedule, deleteUser, getAllUsers, getBarbers, getUser, getUserSchedules, loginUser, logoutUser, registerOrLoginUser, updateSchedule, updateUser } from "./user.controller";
+import { createSchedule, createUser, deleteAllUsers, deleteSchedule, deleteUser, getAllUsers, getBarbers, getUser, getUserByPhone, getUserSchedules, loginUser, logoutUser, registerOrLoginUser, updateSchedule, updateUser } from "./user.controller";
 import { CreateScheduleSchema, CreateUserSchema, DeleteScheduleSchema, LoginUserSchema, UpdateUserSchema } from "./user.schemas";
+import { z } from "zod";
 
 export default async function userRoutes(fastify: FastifyInstance) {
   
@@ -8,8 +9,15 @@ export default async function userRoutes(fastify: FastifyInstance) {
     getAllUsers
   )
 
-  fastify.get("/phone",
+  fastify.get('/getUser', 
+  { 
+    preHandler: [fastify.authenticator] 
+  }, 
     getUser
+  );
+
+  fastify.get("/phone",
+    getUserByPhone
   );
 
   fastify.post("/register-or-login", 
@@ -69,7 +77,7 @@ export default async function userRoutes(fastify: FastifyInstance) {
     {
       preHandler: [fastify.authenticator],
       schema: {
-        body: CreateScheduleSchema
+        body: z.array(CreateScheduleSchema)
       }
     },
     createSchedule

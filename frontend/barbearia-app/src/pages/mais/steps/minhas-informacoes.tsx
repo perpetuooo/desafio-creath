@@ -1,14 +1,13 @@
 import { ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Navbar } from '../../../components/navbar/navbar';
-import { useAuth } from '../../../context/authcontext'; // Atualize o caminho conforme necessário
+import { useAuth } from '../../../context/authcontext'; 
 import { useEffect } from 'react';
 
 export function MinhasInformacoes() {
     const navigate = useNavigate();
     const { isLoggedIn } = useAuth();
 
-    // Se o usuário não estiver logado, redirecione para a página de login
     useEffect(() => {
         if (!isLoggedIn) {
             navigate('/cadastro');

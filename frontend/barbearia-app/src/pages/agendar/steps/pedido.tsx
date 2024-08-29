@@ -1,19 +1,22 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Trash2, CheckCircle, ArrowLeft } from 'lucide-react';
+import { Plus, Trash2, CheckCircle, ArrowLeft, LockKeyholeIcon } from 'lucide-react';
 import { Navbar } from '../../../components/navbar/navbar';
 import { PedidoConcluidoModal } from './pedido-concluido-modal';
 import { useAgendarStepValidation } from '../../../hooks/agendar-step-validation';
 import { useAgendar } from '../../../context/agendarContext';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { useAuth } from '../../../context/authcontext';
+import { api } from '../../../lib/axios';
 
 export function Pedido() {
     const navigate = useNavigate();
     const { validateStep } = useAgendarStepValidation('pedido');
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const { agendamentos, removeAgendamento } = useAgendar();
+    const { agendamentos, removeAgendamento, setAgendamentos } = useAgendar();
     const [total, setTotal] = useState(0);
+    const { isLoggedIn } = useAuth();
 
     useEffect(() => {
         validateStep();
@@ -30,7 +33,6 @@ export function Pedido() {
         setTotal(totalSum);
     }, [agendamentos, validateStep]);
 
-    const isLoggedIn = true;
 
     const handleAddAgendamentos = () => {
         navigate('/agendar');
@@ -40,12 +42,36 @@ export function Pedido() {
         removeAgendamento(index);
     };
 
-    const handleConcluirAgendamento = () => {
-        setIsModalOpen(true);
-    };
-
     const closeModalPedidoConcluido = () => {
         setIsModalOpen(false);
+    };
+
+    const handleConcluirAgendamento = async () => {
+        
+        agendamentos.forEach(agendamento => {
+            console.log("DateTime:", agendamento.dateTime.toISOString());
+            console.log("Barber ID:", agendamento.barber.id);
+            console.log("Service Title:", agendamento.service.title);
+            console.log("Service Value:", agendamento.service.value);
+        });
+        
+        const transformedAgendamentos = agendamentos.map(agendamento => ({
+            dateTime: agendamento.dateTime.toISOString(), 
+            barberId: agendamento.barber.id,
+            service: agendamento.service.title,
+            serviceValue: agendamento.service.value
+        }));
+    
+        try {
+            // Enviar o array diretamente
+            const response = await api.post('api/user/create', transformedAgendamentos);
+            if (response.status === 201) {
+                setAgendamentos([]);
+                setIsModalOpen(true);
+            }
+        } catch (error) {
+            console.error("Erro ao concluir agendamentos:", error);
+        }
     };
 
     return (
@@ -64,8 +90,8 @@ export function Pedido() {
                         {agendamentos.length > 0 ? (
                             agendamentos.map((Agendamentos, index) => {
                                 const formattedMonth = Agendamentos.dateTime ? format(Agendamentos.dateTime, 'MMM', { locale: ptBR }) : '';
-                                const formattedDay = Agendamentos.dateTime ? format(Agendamentos.dateTime, 'dd') : '';
-                                const formattedTime = Agendamentos.dateTime ? format(Agendamentos.dateTime, 'HH:mm') : '';
+                                const formattedDay = Agendamentos.dateTime ? format(Agendamentos.dateTime, 'dd', { locale: ptBR }) : '';
+                                const formattedTime = Agendamentos.dateTime ? format(Agendamentos.dateTime, 'HH:mm', { locale: ptBR }) : '';
 
                                 return (
                                     <div key={index} className="flex bg-customGray-100 w-full md:w-96 h-28 rounded-xl px-7 py-6 gap-3 shadow-navbar">
@@ -77,7 +103,7 @@ export function Pedido() {
                                         <div className="border-l border-customGray-400 h-full"></div>
                                         <div className="flex flex-col justify-start font-bold gap-4">
                                             <span className="text-customBlack">{Agendamentos.service?.title ? Agendamentos.service.title : 'Serviço'}</span>
-                                            <span className="text-customGray">{Agendamentos.barber ? Agendamentos.barber : 'Qualquer um'}</span>
+                                            <span className="text-customGray">{Agendamentos.barber ? Agendamentos.barber.name : 'Qualquer um'}</span>
                                             <span className="text-customGray">{Agendamentos.service?.value}</span>
                                         </div>
                                         <button
@@ -125,7 +151,56 @@ export function Pedido() {
                     </div>
                 </div>
             ) : (
-                <h1></h1>
+                <div className="flex flex-col gap-8 px-4 mt-8 items-center flex-grow">
+                    <div className="flex flex-col gap-8 items-center w-full max-w-md space-y-3">
+                    {agendamentos.length > 0 ? (
+                            agendamentos.map((Agendamentos, index) => {
+                                const formattedMonth = Agendamentos.dateTime ? format(Agendamentos.dateTime, 'MMM', { locale: ptBR }) : '';
+                                const formattedDay = Agendamentos.dateTime ? format(Agendamentos.dateTime, 'dd', { locale: ptBR }) : '';
+                                const formattedTime = Agendamentos.dateTime ? format(Agendamentos.dateTime, 'HH:mm', { locale: ptBR }) : '';
+
+                                return (
+                                    <div key={index} className="flex bg-customGray-100 w-full md:w-96 h-28 rounded-xl px-7 py-6 gap-3 shadow-navbar">
+                                        <div className="flex flex-col justify-start text-center gap-4 font-bold">
+                                            <span>{formattedMonth}</span>
+                                            <span>{formattedDay}</span>
+                                            <span>{formattedTime}</span>
+                                        </div>
+                                        <div className="border-l border-customGray-400 h-full"></div>
+                                        <div className="flex flex-col justify-start font-bold gap-4">
+                                            <span className="text-customBlack">{Agendamentos.service?.title ? Agendamentos.service.title : 'Serviço'}</span>
+                                            <span className="text-customGray">{Agendamentos.barber ? Agendamentos.barber.name : 'Qualquer um'}</span>
+                                            <span className="text-customGray">{Agendamentos.service?.value}</span>
+                                        </div>
+                                        <button
+                                            className="flex flex-1 justify-end items-center text-customGray md:hover:text-customGray-400"
+                                            onClick={() => handleRemoveAgendamentos(index)}
+                                        >
+                                            <Trash2 className="size-5" />
+                                        </button>
+                                    </div>
+                                );
+                            })
+                        ) : (
+                            <p>Nenhum agendamento encontrado.</p>
+                        )}
+                    </div>
+
+                    <button
+                        className="text-customGray-400 bg-transparent border border-customGray-400 px-4 py-2 rounded-md flex items-center gap-2 md:hover:bg-customGray-400 md:hover:text-customGray-100 md:hover:border-black transform ease-in-out duration-300"
+                        onClick={handleAddAgendamentos}>
+                        <Plus className="size-5" />
+                        ADICIONAR OUTRO
+                    </button>
+
+                    <button
+                        className=" mt-auto  text-customGray-100 bg-customGray-400 px-2 py-4 rounded-md flex items-center justify-center transform hover:translate-y-[-5px] ease-in-out duration-300 gap-2 w-full h-14 md:w-80 shadow-navbar"
+                        onClick={() => navigate('/cadastro')}
+                    >
+                        <LockKeyholeIcon className=" size-5 text-customYellow" />
+                        FAZER LOGIN
+                    </button>
+                </div>
             )}
 
             <Navbar />
