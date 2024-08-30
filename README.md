@@ -48,7 +48,7 @@ Siga os passos abaixo para baixar e executar o projeto localmente:
 ### 1. Clonar o Repositório
 
 ```bash
-git clone https://github.com/seu-usuario/sistema-agendamento-barbearia.git
+git clone https://github.com/perpetuooo/desafio-creath/tree/main
 cd sistema-agendamento-barbearia
 ```
 ### 2. Instalar Dependências
