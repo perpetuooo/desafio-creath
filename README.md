@@ -49,7 +49,7 @@ Siga os passos abaixo para baixar e executar o projeto localmente:
 
 ```bash
 git clone https://github.com/perpetuooo/desafio-creath/tree/main
-cd sistema-agendamento-barbearia
+cd desafio-creath
 ```
 ### 2. Instalar Dependências
 Backend:
