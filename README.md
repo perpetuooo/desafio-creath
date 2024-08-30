@@ -27,7 +27,7 @@ Este é um projeto **Sistema de Agendamento de Serviços de Barbearia**, desenvo
 
 - Cadastro e login de usuários.
 - Agendamento de serviços de barbearia.
-- Visualição dos agendamentos realizados.
+- Visualização dos agendamentos realizados.
 - Cancelamento de Agendamentos
 - Visualização e edição de Dados do Usuário(telefone, nome,data de nascimento).
 - Interface intuitiva e fácil de usar.
