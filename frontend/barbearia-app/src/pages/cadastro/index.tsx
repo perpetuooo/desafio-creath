@@ -4,18 +4,31 @@ import logoWhite from '../../assets/whiteLogo.svg';
 import { Navbar } from '../../components/navbar/navbar';
 import { SelectCountry } from '../../components/forms/select-country';
 import googleIcon from '../../assets/googleIcon.svg';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useAgendar } from '../../context/agendarContext';
+
+interface LocationState {
+  from: string;
+}
+
+
 export function Cadastro() {
   const [phone, setPhone] = useState('');
   const { isLoggedIn, login } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const { setAgendamentos } = useAgendar();
+  
+  const stateFrom = location.state as LocationState | null;
+  const from = stateFrom?.from || '/';
 
   useEffect(() => {
     console.log(isLoggedIn)
     if (isLoggedIn) {
-      navigate('/');
+      setAgendamentos([]);
+      navigate(from);
     }
-  }, [isLoggedIn, navigate]);
+  }, [from, isLoggedIn, navigate]);
 
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {

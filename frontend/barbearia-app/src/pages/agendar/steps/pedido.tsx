@@ -14,16 +14,20 @@ export function Pedido() {
     const navigate = useNavigate();
     const { validateStep } = useAgendarStepValidation('pedido');
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const { agendamentos, removeAgendamento, setAgendamentos } = useAgendar();
+    const { agendamentos, removeAgendamento, setAgendamentos, addAgendamento} = useAgendar();
     const [total, setTotal] = useState(0);
     const { isLoggedIn } = useAuth();
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
     useEffect(() => {
         validateStep();
-        
+            addAgendamento();
+    },[]);
+
+    useEffect(() => {
         if (agendamentos.length > 0) {
             console.log('Esse vem do Pedido:', agendamentos);
-    
+
             let totalSum = 0;
             agendamentos.forEach(agendamento => {
                 if (agendamento.service?.value) {
@@ -31,8 +35,10 @@ export function Pedido() {
                 }
             });
             setTotal(totalSum);
+        } else {
+            setTotal(0); 
         }
-    }, [agendamentos, validateStep]);
+    }, [agendamentos]);
 
 
     const handleAddAgendamentos = () => {
@@ -74,9 +80,14 @@ export function Pedido() {
             if (response.status === 201) {
                 setAgendamentos([]);
                 setIsModalOpen(true);
+                setErrorMessage(null);
             }
         } catch (error) {
             console.error("Erro ao concluir agendamentos:", error);
+            setErrorMessage("Ocorreu um erro ao tentar agendar!  " + " " + error)
+            setTimeout(() => {
+                setErrorMessage(null);
+            }, 5000); 
         }
     };
 
@@ -89,7 +100,12 @@ export function Pedido() {
                 />
                 <span className="text-zinc-50 md:text-lg">Pedido</span>
             </div>
-    
+            {errorMessage &&
+                <div className="text-red-800 bg-red-100 border border-red-300 p-3 rounded-md text-center mt-4">
+                    {errorMessage}
+                </div>
+            }
+
             {isLoggedIn ? (
                 <div className="flex flex-col gap-8 px-8 mt-8 items-center flex-grow">
                     <div className="flex flex-col gap-8 items-center w-full max-w-md space-y-3">
@@ -202,7 +218,7 @@ export function Pedido() {
     
                     <button
                         className=" mt-auto  text-customGray-100 bg-customGray-400 px-2 py-4 rounded-md flex items-center justify-center transform hover:translate-y-[-5px] ease-in-out duration-300 gap-2 w-full h-14 md:w-80 shadow-navbar"
-                        onClick={() => navigate('/cadastro')}
+                        onClick={() => navigate('/cadastro', { state: { from: window.location.pathname } })}
                     >
                         <LockKeyholeIcon className=" size-5 text-customYellow" />
                         FAZER LOGIN

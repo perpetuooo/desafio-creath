@@ -1,8 +1,10 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import { useAgendar } from '../context/agendarContext';
+import { useAuth } from "../context/authcontext";
 
 export const useAgendarStepValidation = (requiredStep: string) => {
-  const { selectedService, selectedBarber, selectedDateTime } = useAgendar();
+  const { selectedService, selectedBarber, selectedDateTime, agendamentos } = useAgendar();
+  const {isLoggedIn} = useAuth();
   const navigate = useNavigate();
 
 
@@ -19,6 +21,8 @@ export const useAgendarStepValidation = (requiredStep: string) => {
         }
         break;
       case 'pedido':
+        if(isLoggedIn || agendamentos.length > 0 )
+          break;
         if (!selectedService || !selectedBarber || !selectedDateTime) {
           navigate('/resumo');
         }

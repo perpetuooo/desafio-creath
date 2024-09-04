@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, ArrowLeft, X, ConciergeBell, User, Clock, ArrowLeftRight } from 'lucide-react';
 import { Navbar } from '../../../components/navbar/navbar';
-import { addDays, format, setHours, setMinutes } from 'date-fns';
+import { addDays, format, setHours, setMinutes} from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useAgendar } from '../../../context/agendarContext';
 import { useAgendarStepValidation } from '../../../hooks/agendar-step-validation';
@@ -10,13 +10,14 @@ import { useAgendarStepValidation } from '../../../hooks/agendar-step-validation
 export function ResumoEEscolhaData() {
     const navigate = useNavigate();
     const [searchQuery, setSearchQuery] = useState('');
-    const { setSelectedDateTime, selectedService, selectedBarber, addAgendamento, agendamentos } = useAgendar();
+    const { setSelectedDateTime, selectedService, selectedBarber, agendamentos } = useAgendar();
     const { validateStep } = useAgendarStepValidation('resumo');
-
+   
     useEffect(() => {
         console.log('Esse vem do Resumo', agendamentos);
         validateStep();
-    }, [agendamentos, validateStep]);
+      
+    },);
 
     const generateSuggestedDates = () => {
         const today = new Date();
@@ -43,6 +44,8 @@ export function ResumoEEscolhaData() {
 
     const suggestedDates = generateSuggestedDates();
 
+
+
     const handleSelectDateTime = (date: string, time: string) => {
     new Date(date)
     const [year, month, day] = date.split('-').map(Number);
@@ -55,9 +58,8 @@ export function ResumoEEscolhaData() {
     const selectedDateTime = setHours(setMinutes(selectedDate, minutes), hours);
         
         setSelectedDateTime(selectedDateTime);
+
         console.log("Data passada do resumo"+ selectedDateTime);
-        // Adiciona o agendamento e navega após a atualização
-        addAgendamento();
         navigate('/pedido');
     };
 

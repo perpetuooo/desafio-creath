@@ -1,20 +1,22 @@
 import { X, ConciergeBellIcon, UserIcon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Schedules } from './index';
+import { useAgendar } from '../../context/agendarContext';
 
 
 interface ReagendarModalProps {
     closeModal: () => void;
-    schedule?: Schedules | null ; // Adiciona a propriedade para o agendamento selecionado
+    schedule: Schedules; 
 }
 
 export function ReagendarModal({ closeModal, schedule }: ReagendarModalProps) {
     const navigate = useNavigate(); 
-    
+    const { setSelectedService, setSelectedBarber } = useAgendar();
     const handleAgendar = async () => {
+        setSelectedBarber({id: schedule.barberId , name: schedule.barberName, phone: ""})
+        setSelectedService({title: schedule.service ,duration: "", value: schedule.serviceValue})
         closeModal();
-        navigate('/agendar')
-       
+        navigate('/resumo')
     };
 
     const handleNaoquer = async () =>{
@@ -44,11 +46,11 @@ export function ReagendarModal({ closeModal, schedule }: ReagendarModalProps) {
                         </h3>
                         <div className="flex items-center gap-4">
                             <ConciergeBellIcon className="size-5 font-bold" />
-                            <span className="text-customGray-300">{schedule?.service  ? schedule?.service : 'Barba'}'</span>
+                            <span className="text-customGray-300">{schedule.service}</span>
                         </div>
                         <div className="flex items-center gap-4">
                             <UserIcon className="size-5 font-black" />
-                            <span className="text-customGray-300">{schedule?.barberName ? schedule?.service : 'Qualquer um'}</span>
+                            <span className="text-customGray-300">{schedule.barberName }</span>
                         </div>
                     </div>
 

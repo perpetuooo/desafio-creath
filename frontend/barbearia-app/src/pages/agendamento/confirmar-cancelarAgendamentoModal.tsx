@@ -3,18 +3,20 @@ import { useState } from 'react';
 import { ReagendarModal } from './reagendarModal';
 import { api } from '../../lib/axios'; 
 import { Schedules } from './index';
+import { format } from 'date-fns/format';
+import { ptBR } from 'date-fns/locale/pt-BR';
 
 interface ConfirmarCancelarAgendamentoProps {
     closeModalAgendamento: () => void;
     confirmarAgendamento: () => void;
     agendamentoId: number | undefined; 
-    schedule?: Schedules | null  ;
+    schedule: Schedules;
 }
 
 export function ConfirmarCancelarAgendamentoModal({ closeModalAgendamento, confirmarAgendamento, agendamentoId, schedule }: ConfirmarCancelarAgendamentoProps) {
     const [isReagendarModalOpen, setIsReagendarModalOpen] = useState(false);
-    const [savedSchedule, setSavedSchedule] = useState<Schedules | null>(null);
     console.log("ConfirmarCancelar  1 " + schedule)
+    
     const handleConfirmarCancelarAgendamento = async () => {
         console.log("Agendamento no ConfirmarCancelar " + agendamentoId);
         
@@ -25,10 +27,7 @@ export function ConfirmarCancelarAgendamentoModal({ closeModalAgendamento, confi
             }
 
             // Salva o agendamento antes de excluir
-            if (schedule) {
-                console.log("ConfirmarCancelar" + schedule)
-                setSavedSchedule(schedule);
-            }
+
             await api.delete('api/user/erase', {
                 data: { id: agendamentoId }   
             });
@@ -59,7 +58,7 @@ export function ConfirmarCancelarAgendamentoModal({ closeModalAgendamento, confi
                     <div className="flex flex-col py-10 px-5">
                         <h2 className="text-lg font-bold text-center">Tem certeza?</h2>
                         <span className="text-center text-customGray-300 mt-4">
-                            Deseja <span className="font-bold text-customGray-400">cancelar</span> Barba às 11:00 de <br />sexta-feira, 2 de agosto?
+                            Deseja <span className="font-bold text-customGray-400">cancelar </span>{schedule.service} às {format(schedule.dateTime, " HH:mm, EEEE, d 'de' MMMM", { locale: ptBR })}?
                         </span>
 
                         <div className="flex justify-end mt-6 gap-4">
@@ -79,9 +78,9 @@ export function ConfirmarCancelarAgendamentoModal({ closeModalAgendamento, confi
                     </div>
                 </div>
             </div>
-            {isReagendarModalOpen && (
+            {isReagendarModalOpen && schedule &&(
                 <ReagendarModal closeModal={closeReagendarModal}  
-                schedule={savedSchedule}/>
+                schedule={schedule}/>
             )}
         </>
     );

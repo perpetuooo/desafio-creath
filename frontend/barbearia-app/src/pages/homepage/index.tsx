@@ -4,11 +4,12 @@ import { Clock, CalendarRange } from 'lucide-react';
 import { Navbar } from '../../components/navbar/navbar';
 import { useAuth } from '../../context/authcontext'; 
 import { useEffect } from "react";
+import { useAgendar } from "../../context/agendarContext";
 
 export function HomePage() {
-    const {checkAuth} = useAuth();
+    const {checkAuth, isLoggedIn} = useAuth();
     const navigate = useNavigate(); 
-
+    const {agendamentos, setAgendamentos} = useAgendar();
     useEffect(() => {
     const verifyAuth = async () => {
       await checkAuth();
@@ -16,6 +17,16 @@ export function HomePage() {
 
     verifyAuth();
   }, [checkAuth]);
+
+  const handleMeusAgendamentos = ()=>{
+    if(agendamentos.length > 0 && !isLoggedIn){
+        setAgendamentos([])    
+        navigate('/pedido')
+    }
+    else
+        navigate('/agendamentos')
+
+  }
 
     
     return (
@@ -34,7 +45,7 @@ export function HomePage() {
                         </button>
                         <button 
                             className='bg-customBlack flex flex-col items-center justify-center w-36 h-24 rounded-xl shadow-homePrimaryButton gap-1 md:hover:bg-customGray-100 ease-in-out duration-300 md:hover:text-customBlack'
-                            onClick={() => navigate('/agendamentos')} title="Clique para ver os seus agendamentos">
+                            onClick={() => handleMeusAgendamentos() } title="Clique para ver os seus agendamentos">
                             <CalendarRange className='size-5' />
                             <span>Meus Agendamentos</span>      
                         </button>

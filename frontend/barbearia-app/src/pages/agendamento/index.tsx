@@ -7,6 +7,9 @@ import { ConfirmarCancelarAgendamentoModal } from './confirmar-cancelarAgendamen
 import { ReagendarModal } from './reagendarModal';
 import { useAuth } from '../../context/authcontext'; 
 import { api } from '../../lib/axios';
+import { getYear } from 'date-fns';
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale/pt-BR';
 export interface Schedules {
     id: number
     dateTime: string
@@ -26,6 +29,7 @@ export function Agendamento() {
     const {loading} = useAuth();
     const [error, setError] = useState('');
     const [selectedSchedule, setSelectedSchedule] = useState<Schedules | null>(null); // Adiciona o estado para o agendamento selecionado
+    const today = new Date();
 
     useEffect(() => {
         if (!loading) {
@@ -54,12 +58,10 @@ export function Agendamento() {
 
     const closeModalAgendamento = () => {
         setIsModalAgendamentoOpen(false);
-        setSelectedSchedule(null); // Limpa o agendamento selecionado ao fechar o modal
     };
 
     const openConfirmarCancelarModal = () => {
         setIsConfirmarCancelarModalOpen(true);
-
     };
 
     const closeConfirmarCancelarModal = () => {
@@ -76,6 +78,7 @@ export function Agendamento() {
         openReagendarModal();
     };
 
+
     return (
         <div className="flex flex-col min-h-screen pb-24 md:pb-10 defaultFontStyles md:pl-20">
             <div className="bg-customGray-400 p-4 flex items-center gap-4 h-16 shadow-navbar">
@@ -86,8 +89,7 @@ export function Agendamento() {
                 <span className="text-zinc-50 md:text-lg">Meus Agendamentos</span>
             </div>
             <div className="flex flex-col gap-8 px-8 mt-8 items-center">
-                <span className="font-bold mr-auto md:mr-0">agosto, 2024</span>
-                
+                <span className="font-bold mr-auto md:mr-0">{format(today, 'MMMM', { locale: ptBR })}, {getYear(today)}</span>
                 {loading && <p>Carregando agendamentos...</p>}
                 {error && <p>{error}</p>}
                 {schedules.length === 0 && !loading && <p>Você não tem agendamentos.</p>}
@@ -122,16 +124,16 @@ export function Agendamento() {
                 />
             )}
 
-            {isConfirmarCancelarModalOpen && (
+            {isConfirmarCancelarModalOpen && selectedSchedule && selectedSchedule.id && (
                 <ConfirmarCancelarAgendamentoModal
                     closeModalAgendamento={closeConfirmarCancelarModal}
                     confirmarAgendamento={closeAllModalsAndOpenReagendar}
-                     agendamentoId={selectedSchedule?.id}
+                     agendamentoId={selectedSchedule.id}
                      schedule={selectedSchedule}
                 />
             )}
 
-            {isReagendarModalOpen && ( 
+            {isReagendarModalOpen && selectedSchedule && ( 
                 <ReagendarModal closeModal={() => setIsReagendarModalOpen(false)}    
                 schedule={selectedSchedule}
                 />
